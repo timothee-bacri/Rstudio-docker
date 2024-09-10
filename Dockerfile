@@ -36,6 +36,7 @@ COPY DESCRIPTION .
 # RUN Rscript -e 'remotes::install_github("cran4linux/rspm")'
 # RUN Rscript -e 'rspm::enable()'
 RUN Rscript -e "remotes::install_deps(quiet = FALSE, repos = 'https://cran.rstudio.com')"
+RUN Rscript -e "devtools::install_github('mingdeyu/dgpsi-R')"
 
 # RUN useradd \
 #     --create-home \
