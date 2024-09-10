@@ -54,6 +54,8 @@ Imports:
     leaflet,
     mapview,
     webshot,
+    # Necessary for RRembo
+    eaf,
     # Optimize the acquisition functin with parallel multi-start
     doFuture,
     doRNG
