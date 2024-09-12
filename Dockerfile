@@ -25,19 +25,26 @@ RUN apt-get -y --no-install-recommends install libgsl-dev libglu1-mesa
 
 # For dgpsi
 RUN apt-get -y --no-install-recommends install libtiff-dev libjpeg-dev
+RUN arch=$(uname -p)
+RUN if [[ "$arch" != "s390" && "$arch" != "x86_64" && "$arch" != "aarch64" ]]; then \
+        echo "Unsupported architecture: $arch"; \
+        exit 1; \
+    fi
+# Need conda -> install miniconda https://docs.anaconda.com/miniconda/
+RUN mkdir -p ~/miniconda3
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${arch}.sh -O ~/miniconda3/miniconda.sh
+RUN bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+RUN rm ~/miniconda3/miniconda.sh
 
 RUN apt-get update && \
     apt-get -y upgrade && \
     apt-get -y clean && \
     apt-get -y autoremove --purge
 
-# # INSTALL PACKAGES, SOLUTION 2: Smallest image
+# Install packages while making the image small
 # RUN Rscript -e "install.packages('remotes', lib = normalizePath(Sys.getenv('R_LIBS_USER')), repos = 'https://cran.rstudio.com/')"
 RUN Rscript -e "install.packages('remotes', repos = 'https://cran.rstudio.com')"
 COPY DESCRIPTION .
-# https://cran4linux.github.io/rspm/
-# RUN Rscript -e 'remotes::install_github("cran4linux/rspm")'
-# RUN Rscript -e 'rspm::enable()'
 RUN Rscript -e "remotes::install_deps(repos = 'https://cran.rstudio.com')"
 RUN Rscript -e "devtools::install_github('mingdeyu/dgpsi-R')"
 RUN Rscript -e "devtools::install_github('mbinois/RRembo')"
