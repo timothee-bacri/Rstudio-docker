@@ -32,7 +32,7 @@ RUN if [[ "$arch" != "s390x" && "$arch" != "x86_64" && "$arch" != "aarch64" ]]; 
     fi
 # Need conda -> install miniconda https://docs.anaconda.com/miniconda/
 RUN mkdir -p /shared/miniconda3
-RUN wget "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${arch}.sh" -O /shared/miniconda3/miniconda.sh
+RUN arch=$(uname -p) && wget "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${arch}.sh" -O /shared/miniconda3/miniconda.sh
 RUN bash /shared/miniconda3/miniconda.sh -b -u -p /shared/miniconda3
 RUN rm /shared/miniconda3/miniconda.sh
 
