@@ -134,7 +134,7 @@ RUN for userpath in /home/*/; do \
 # tell all Rstudio sessions about it
 RUN echo "options(reticulate.conda_binary = '/shared/miniconda3/bin/conda')" >> "$R_HOME/etc/Rprofile.site"
 # Initialize dgpsi, and say yes to all prompts
-RUN Rscript "readline<-function(prompt) {return('Y')};dgpsi::init_py()"
+RUN Rscript -e "readline<-function(prompt) {return('Y')};dgpsi::init_py()"
 
 RUN apt-get install -y sudo nano
 RUN mkdir -p /etc/sudoers.d
