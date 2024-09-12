@@ -59,4 +59,6 @@ Imports:
     eaf,
     # Optimize the acquisition functin with parallel multi-start
     doFuture,
-    doRNG
+    doRNG,
+    GPvecchia,
+    rstudioapi
