@@ -21,7 +21,7 @@ RUN apt-get -y --no-install-recommends install libharfbuzz-dev
 RUN apt-get -y --no-install-recommends install libfribidi-dev
 
 # For RRembo -> eaf
-RUN apt-get -y --no-install-recommends install libgsl-dev
+RUN apt-get -y --no-install-recommends install libgsl-dev libglu1-mesa
 
 # For dgpsi
 RUN apt-get -y --no-install-recommends install libtiff-dev libjpeg-dev
