@@ -31,10 +31,10 @@ RUN if [[ "$arch" != "s390x" && "$arch" != "x86_64" && "$arch" != "aarch64" ]]; 
         exit 1; \
     fi
 # Need conda -> install miniconda https://docs.anaconda.com/miniconda/
-RUN mkdir -p ~/miniconda3
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${arch}.sh -O ~/miniconda3/miniconda.sh
-RUN bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
-RUN rm ~/miniconda3/miniconda.sh
+RUN mkdir -p /shared/miniconda3
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${arch}.sh -O /shared/miniconda3/miniconda.sh
+RUN bash /shared/miniconda3/miniconda.sh -b -u -p /shared/miniconda3
+RUN rm /shared/miniconda3/miniconda.sh
 
 RUN apt-get update && \
     apt-get -y upgrade && \
@@ -125,6 +125,14 @@ RUN chown -R bertrand /shared/bertrand
 
 VOLUME /shared/timothee /shared/ivis /shared/muhammad /shared/boyun /shared/bertrand
 VOLUME /home/timothee /home/ivis /home/muhammad /home/boyun /home/bertrand
+
+
+# make conda command available to all
+RUN for userpath in /home/*/; do \
+        echo 'export PATH="/shared/miniconda3/bin:$PATH"' >> "${userpath}/.bashrc"; \
+    done
+# tell all Rstudio sessions about it
+RUN echo "options(reticulate.conda_binary = '/shared/miniconda3/bin/conda')" >> "$R_HOME/etc/Rprofile.site"
 
 
 RUN apt-get install -y sudo nano
