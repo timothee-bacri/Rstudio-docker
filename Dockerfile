@@ -87,8 +87,8 @@ VOLUME /shared/timothee /shared/ivis /shared/muhammad /shared/boyun /shared/bert
 VOLUME /home/timothee /home/ivis /home/muhammad /home/boyun /home/bertrand
 
 # make conda command available to all
-ARG PATH_STRING='$PATH' # do not interpolate path, this is meant to update path in .bashrc
-ARG COMMAND_EXPORT_PATH_BASHRC="export PATH=\"${CONDA_PATH}/bin:${PATH_STRING}\""
+ARG PATH_DOLLAR='$PATH' # do not interpolate path, this is meant to update path in .bashrc
+ARG COMMAND_EXPORT_PATH_BASHRC="export PATH=\"${CONDA_PATH}/bin:${PATH_DOLLAR}\""
 # the command is: export PATH="<conda_path>/bin:$PATH"
 RUN for userpath in /home/*/ /root/; do \
         echo "${COMMAND_EXPORT_PATH_BASHRC}" | tee -a "${userpath}/.bashrc"; \
