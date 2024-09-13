@@ -3,6 +3,7 @@ FROM rocker/rstudio:latest
 ARG CONDA_PATH=/shared/miniconda
 ARG CONDA_ENV_PATH=${CONDA_PATH}/envs/dgp_si_R_2_4_0_9000
 ARG PATH=$CONDA_ENV_PATH/bin:$PATH
+ARG DEFAULT_PASSWORD="orchid"
 
 # Users can read and copy files in /shared
 RUN addgroup rstudio-users
@@ -53,69 +54,25 @@ RUN Rscript -e "remotes::install_deps(repos = 'https://cran.rstudio.com')"
 RUN Rscript -e "devtools::install_github('mingdeyu/dgpsi-R')"
 RUN Rscript -e "devtools::install_github('mbinois/RRembo')"
 
-# RUN useradd \
-#     --create-home \
-#     --home-dir /home/timothee \
-#     --shell /bin/bash \
-#     --uid 2001 \
-#     --gid rstudio-users \
-#     # --password `perl -e 'print crypt("pass", "salt")'` \
-#     # --password `perl -e 'print crypt("orchid config", "sj43ip")'` \
-#     --password "sjFFjJImAEaTo" \
-#     timothee
 RUN adduser timothee
-RUN echo "timothee:orchid config" | chpasswd
+RUN echo "timothee:${DEFAULT_PASSWORD}" | chpasswd
 RUN usermod --append --groups rstudio-users timothee
 
-# RUN useradd \
-#     --create-home \
-#     --home-dir /home/ivis \
-#     --shell /bin/bash \
-#     --uid 2002 \
-#     --gid rstudio-users \
-#     --password "sjFFjJImAEaTo" \
-#     ivis
 RUN adduser ivis
-RUN echo "ivis:orchid config" | chpasswd
+RUN echo "ivis:${DEFAULT_PASSWORD}" | chpasswd
 RUN usermod --append --groups rstudio-users ivis
 
-# RUN useradd \
-#     --create-home \
-#     --home-dir /home/muhammad \
-#     --shell /bin/bash \
-#     --uid 2003 \
-#     --gid rstudio-users \
-#     --password "sjFFjJImAEaTo" \
-#     muhammad
 RUN adduser muhammad
-RUN echo "muhammad:orchid config" | chpasswd
+RUN echo "muhammad:${DEFAULT_PASSWORD}" | chpasswd
 RUN usermod --append --groups rstudio-users muhammad
 
-# RUN useradd \
-#     --create-home \
-#     --home-dir /home/boyun \
-#     --shell /bin/bash \
-#     --uid 2004 \
-#     --gid rstudio-users \
-#     --password "sjFFjJImAEaTo" \
-#     boyun
 RUN adduser boyun
-RUN echo "boyun:orchid config" | chpasswd
+RUN echo "boyun:${DEFAULT_PASSWORD}" | chpasswd
 RUN usermod --append --groups rstudio-users boyun
 
-# RUN useradd \
-#     --create-home \
-#     --home-dir /home/bertrand \
-#     --shell /bin/bash \
-#     --uid 2005 \
-#     --gid rstudio-users \
-#     --password "sjFFjJImAEaTo" \
-#     bertrand
 RUN adduser bertrand
-RUN echo "bertrand:orchid config" | chpasswd
+RUN echo "bertrand:${DEFAULT_PASSWORD}" | chpasswd
 RUN usermod --append --groups rstudio-users bertrand
-
-# RUN echo "ivis:iamivis" | chpasswd
 
 RUN mkdir -p /shared/timothee /shared/ivis /shared/muhammad /shared/boyun /shared/bertrand
 RUN chgrp -R rstudio-users /shared
