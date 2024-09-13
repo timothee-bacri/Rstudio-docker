@@ -86,8 +86,6 @@ RUN chown -R bertrand /shared/bertrand
 
 VOLUME /shared/timothee /shared/ivis /shared/muhammad /shared/boyun /shared/bertrand
 VOLUME /home/timothee /home/ivis /home/muhammad /home/boyun /home/bertrand
-# Store changed passwords
-VOLUME /etc
 
 # make conda command available to all
 RUN for userpath in /home/*/ /root/; do \
