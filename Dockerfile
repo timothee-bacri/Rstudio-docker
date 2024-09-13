@@ -1,5 +1,9 @@
 FROM rocker/rstudio:latest
 
+ARG CONDA_PATH=/shared/miniconda
+ARG CONDA_ENV_PATH=/shared/miniconda3/envs/dgp_si_R_2_4_0_9000
+ARG PATH=$CONDA_ENV_PATH/bin:$PATH
+
 # Users can read and copy files in /shared
 RUN addgroup rstudio-users
 
@@ -31,10 +35,10 @@ RUN arch=$(uname -p) && \
         exit 1; \
     fi
 # Need conda -> install miniconda https://docs.anaconda.com/miniconda/
-RUN mkdir -p /shared/miniconda3
-RUN arch=$(uname -p) && wget "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${arch}.sh" -O /shared/miniconda3/miniconda.sh
-RUN bash /shared/miniconda3/miniconda.sh -b -u -p /shared/miniconda3
-RUN rm /shared/miniconda3/miniconda.sh
+RUN mkdir -p "${CONDA_PATH}""
+RUN arch=$(uname -p) && wget "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${arch}.sh" -O "${CONDA_PATH}/miniconda.sh"
+RUN bash "${CONDA_PATH}"/miniconda.sh -b -u -p "${CONDA_PATH}"
+RUN rm "${CONDA_PATH}/miniconda.sh
 
 RUN apt-get update && \
     apt-get -y upgrade && \
@@ -129,14 +133,14 @@ VOLUME /home/timothee /home/ivis /home/muhammad /home/boyun /home/bertrand
 
 # make conda command available to all
 RUN for userpath in /home/*/ /root/; do \
-        echo 'export PATH="/shared/miniconda3/bin:$PATH"' >> "${userpath}/.bashrc"; \
+        echo 'export PATH="${CONDA_PATH}/bin:$PATH"' | tee -a "${userpath}/.bashrc"; \
     done
 # tell all Rstudio sessions about it
-RUN echo "options(reticulate.conda_binary = '/shared/miniconda3/bin/conda')" >> "$R_HOME/etc/Rprofile.site"
+RUN echo "options(reticulate.conda_binary = '${CONDA_PATH}/bin/conda')" | tee -a "$R_HOME/etc/Rprofile.site"
 # Initialize dgpsi, and say yes to all prompts
 RUN Rscript -e "readline<-function(prompt) {return('Y')};dgpsi::init_py()"
 
-RUN ls -alhR /shared/miniconda3/
+RUN ls -alhR "${CONDA_PATH}"
 
 RUN apt-get install -y sudo nano
 RUN mkdir -p /etc/sudoers.d
