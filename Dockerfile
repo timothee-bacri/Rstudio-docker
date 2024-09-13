@@ -1,7 +1,7 @@
 FROM rocker/rstudio:latest
 
 ARG CONDA_PATH=/shared/miniconda
-ARG CONDA_ENV_PATH=/shared/miniconda3/envs/dgp_si_R_2_4_0_9000
+ARG CONDA_ENV_PATH=${CONDA_PATH}/envs/dgp_si_R_2_4_0_9000
 ARG PATH=$CONDA_ENV_PATH/bin:$PATH
 
 # Users can read and copy files in /shared
