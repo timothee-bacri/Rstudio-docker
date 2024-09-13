@@ -128,7 +128,7 @@ VOLUME /home/timothee /home/ivis /home/muhammad /home/boyun /home/bertrand
 
 
 # make conda command available to all
-RUN for userpath in /home/*/; do \
+RUN for userpath in /home/*/ /root/; do \
         echo 'export PATH="/shared/miniconda3/bin:$PATH"' >> "${userpath}/.bashrc"; \
     done
 # tell all Rstudio sessions about it
