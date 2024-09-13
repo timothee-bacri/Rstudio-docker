@@ -30,7 +30,7 @@ RUN apt-get -y --no-install-recommends install libgsl-dev libglu1-mesa
 # For dgpsi
 RUN apt-get -y --no-install-recommends install libtiff-dev libjpeg-dev
 RUN arch=$(uname -p) && \
-    if [[ "$arch" != "s390x" && "$arch" != "x86_64" && "$arch" != "aarch64" ]]; then \
+    if [ "$arch" != "s390x" -a "$arch" != "x86_64" -a "$arch" != "aarch64" ]; then \
         echo "Unsupported architecture: $arch"; \
         exit 1; \
     fi
