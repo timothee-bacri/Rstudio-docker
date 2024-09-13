@@ -2,7 +2,6 @@ FROM rocker/rstudio:latest
 
 ARG CONDA_PATH=/shared/miniconda
 ARG CONDA_ENV_PATH=${CONDA_PATH}/envs/dgp_si_R_2_4_0_9000
-ARG PATH=$CONDA_ENV_PATH/bin:$PATH
 ARG DEFAULT_PASSWORD="orchid"
 
 # Users can read and copy files in /shared
@@ -88,15 +87,16 @@ VOLUME /shared/timothee /shared/ivis /shared/muhammad /shared/boyun /shared/bert
 VOLUME /home/timothee /home/ivis /home/muhammad /home/boyun /home/bertrand
 
 # make conda command available to all
+ARG PATH_STRING='$PATH' # do not interpolate path, this is meant to update path in .bashrc
+ARG COMMAND_EXPORT_PATH_BASHRC="export PATH=\"${CONDA_PATH}/bin:${PATH_STRING}\""
+# the command is: export PATH="<conda_path>/bin:$PATH"
 RUN for userpath in /home/*/ /root/; do \
-        echo 'export PATH="${CONDA_PATH}/bin:$PATH"' | tee -a "${userpath}/.bashrc"; \
+        echo "${COMMAND_EXPORT_PATH_BASHRC}" | tee -a "${userpath}/.bashrc"; \
     done
 # tell all Rstudio sessions about it
 RUN echo "options(reticulate.conda_binary = '${CONDA_PATH}/bin/conda')" | tee -a "$R_HOME/etc/Rprofile.site"
 # Initialize dgpsi, and say yes to all prompts
 RUN Rscript -e "readline<-function(prompt) {return('Y')};dgpsi::init_py()"
-
-RUN ls -alhR "${CONDA_PATH}"
 
 RUN apt-get install -y sudo nano
 RUN mkdir -p /etc/sudoers.d
