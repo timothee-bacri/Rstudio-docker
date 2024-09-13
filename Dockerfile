@@ -35,7 +35,7 @@ RUN arch=$(uname -p) && \
         exit 1; \
     fi
 # Need conda -> install miniconda https://docs.anaconda.com/miniconda/
-RUN mkdir -p "${CONDA_PATH}""
+RUN mkdir -p "${CONDA_PATH}"
 RUN arch=$(uname -p) && wget "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${arch}.sh" -O "${CONDA_PATH}/miniconda.sh"
 RUN bash "${CONDA_PATH}"/miniconda.sh -b -u -p "${CONDA_PATH}"
 RUN rm "${CONDA_PATH}/miniconda.sh
