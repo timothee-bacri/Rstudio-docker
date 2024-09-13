@@ -136,6 +136,8 @@ RUN echo "options(reticulate.conda_binary = '/shared/miniconda3/bin/conda')" >> 
 # Initialize dgpsi, and say yes to all prompts
 RUN Rscript -e "readline<-function(prompt) {return('Y')};dgpsi::init_py()"
 
+RUN ls -alhR /shared/miniconda3/
+
 RUN apt-get install -y sudo nano
 RUN mkdir -p /etc/sudoers.d
 
