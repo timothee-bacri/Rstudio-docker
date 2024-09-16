@@ -60,7 +60,7 @@ RUN addgroup rstudio-users
 
 # Initialize users
 RUN for user in "${USERS}"; do \
-        adduser --disabled-password --comment "" "${user}" && \
+        adduser --disabled-password --gecos "" "${user}" && \
         echo "${user}:${DEFAULT_PASSWORD}" | chpasswd && \
         usermod --append --groups rstudio-users "${user}" && \
         mkdir -p "/shared/${user}" && \
