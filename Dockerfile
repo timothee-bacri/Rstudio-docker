@@ -6,7 +6,7 @@ ARG USERS="bertrand boyun daniel deyu ivis muhammad timothee"
 ARG DEFAULT_PASSWORD="orchid"
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN env && apt-get update && \
+RUN apt-get update && \
     apt-get -y upgrade && \
     apt-get -y clean && \
     apt-get -y autoremove --purge \
