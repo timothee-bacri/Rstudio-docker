@@ -47,13 +47,14 @@ RUN apt-get update && \
     apt-get -y autoremove --purge && \
     apt-get -y autoclean
 
-# Install packages while making the image small
+# Install packages while making the image small, and does not reinstall them if they are already there and updated
 # RUN Rscript -e "install.packages('remotes', lib = normalizePath(Sys.getenv('R_LIBS_USER')), repos = 'https://cran.rstudio.com/')"
 RUN Rscript -e "install.packages('remotes', repos = 'https://cran.rstudio.com')"
 COPY DESCRIPTION .
 RUN Rscript -e "remotes::install_deps(repos = 'https://cran.rstudio.com')"
 RUN Rscript -e "devtools::install_github('mingdeyu/dgpsi-R')"
 RUN Rscript -e "devtools::install_github('mbinois/RRembo')"
+RUN rm -f DESCRIPTION
 
 # Users can read and copy files in /shared
 RUN addgroup rstudio-users
