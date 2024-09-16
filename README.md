@@ -17,7 +17,7 @@ To make it simpler, `apt install`, `apt search`, `apt update` and their `apt-get
 ## IMPORTANT
 - To avoid resetting passwords on every container recreation, bind-mount `/etc/shadow`
 - To connect to a GitHub repository easily, bind-mount your SSH keys to `~/.ssh/`
-- The default user password is "orchid" (without the quotation marks)
+- The default user passwords are "orchid" (without the quotation marks)
 
 ## docker-compose.yml
 ```yaml
