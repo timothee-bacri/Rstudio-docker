@@ -27,8 +27,10 @@ RUN apt-get -y --no-install-recommends install libfribidi-dev
 RUN apt-get -y --no-install-recommends install libgsl-dev libglu1-mesa
 # For dgpsi
 RUN apt-get -y --no-install-recommends install libtiff-dev libjpeg-dev
+# Miniconda only supports s390x and x86_64 (amd64) and aarch64 (arm64)
+# But rocker:rstudio only supports amd64 and arm64
 RUN arch=$(uname -p) && \
-    if [ "$arch" != "s390x" -a "$arch" != "x86_64" -a "$arch" != "aarch64" ]; then \
+    if [ "$arch" != "x86_64" -a "$arch" != "aarch64" ]; then \
         echo "Unsupported architecture: $arch"; \
         exit 1; \
     fi
