@@ -42,7 +42,7 @@ RUN rm -f "${CONDA_PATH}/miniconda.sh"
 RUN apt-get update && \
     apt-get -y upgrade && \
     apt-get -y clean && \
-    apt-get -y autoremove --purge \
+    apt-get -y autoremove --purge && \
     apt-get -y autoclean
 
 # Install packages while making the image small
