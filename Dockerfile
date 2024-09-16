@@ -9,7 +9,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get -y upgrade && \
     apt-get -y clean && \
-    apt-get -y autoremove --purge \
+    apt-get -y autoremove --purge && \
     apt-get -y autoclean
 
 RUN apt-get -y --no-install-recommends install libcurl4-openssl-dev
