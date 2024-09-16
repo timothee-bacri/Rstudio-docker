@@ -7,7 +7,7 @@ Also has the development versions of https://github.com/mingdeyu/dgpsi-R/ and ht
 ## Conda
 Miniconda is installed for all users in `/shared/miniconda`, and `dgpsi` is setup in it with `dgpsi::init_py()`.
 To make conda in `/shared/miniconda` work in the command line and R easily,
-1. `export PATH="/shared/miniconda/bin:${PATH}"` is appended to `~/.bashrc.d/conda_path` for all users defined in the Dockerfile
+1. `export PATH="/shared/miniconda/bin:${PATH}"` is appended to `~/.bashrc` for all users defined in the Dockerfile
 2. `options(reticulate.conda_binary = '/shared/minicond/bin/conda')` is appended to `$R_HOME/etc/Rprofile.site`
 
 Packages and Miniconda make the container size big, but everything about `dgpsi` and `RRembo` is ready.
