@@ -29,25 +29,22 @@ jobs:
       contents: read
       packages: write
 
-    outputs:
-      LOCAL: ${{ steps.commits.outputs.SETLOCAL }}
-      REMOTE: ${{ steps.commits.outputs.SETREMOTE }} 
     steps:
-      - name: set timestamp as environment variables
-        # https://lannonbr.com/blog/2020-04-16-gh-actions-job-outputs
-        # https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
-        run: echo "TIMESTAMP=$(date -d '${{ github.event.head_commit.timestamp }}' +'%Y-%m')" >> $GITHUB_ENV
+      #- name: set timestamp as environment variables
+      #  # https://lannonbr.com/blog/2020-04-16-gh-actions-job-outputs
+      #  # https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
+      #  run: echo "TIMESTAMP=$(date -d '${{ github.event.head_commit.timestamp }}' +'%Y-%m')" >> $GITHUB_ENV
       
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: Cache R packages
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.R_SYSTEM_LIBRARY_PATH }}
-          key: ${{ runner.os }}-r-library-${{ env.TIMESTAMP }}
-          restore-keys: |
-            ${{ runner.os }}-r-library-${{ env.TIMESTAMP }}
+      #- name: Cache R packages
+      #  uses: actions/cache@v4
+      #  with:
+      #    path: ${{ env.R_SYSTEM_LIBRARY_PATH }}
+      #    key: ${{ runner.os }}-r-library-${{ env.TIMESTAMP }}
+      #    restore-keys: |
+      #      ${{ runner.os }}-r-library-${{ env.TIMESTAMP }}
 
       # Set up BuildKit Docker container builder to be able to build
       # multi-platform images and export cache
@@ -83,3 +80,5 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           #cache-from: type=gha
           #cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=${{ steps.meta.outputs.tags }}
+          cache-to: type=inline
