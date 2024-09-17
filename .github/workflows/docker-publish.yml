@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Cache R packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ env.R_SYSTEM_LIBRARY_PATH }}
           key: ${{ runner.os }}-r-library-${{ env.TIMESTAMP }}
