@@ -20,7 +20,6 @@ env:
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
   # R packages are cached for speed. Invalidate cache weekly.
-  TIMESTAMP: ${{ format('YYYY-ww', github.event.head_commit.timestamp) }}
   R_SYSTEM_LIBRARY_PATH: /usr/local/lib/R/site-library
 
 jobs:
