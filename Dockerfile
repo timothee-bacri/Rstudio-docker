@@ -51,7 +51,10 @@ RUN apt-get update && \
 # RUN Rscript -e "install.packages('remotes', lib = normalizePath(Sys.getenv('R_LIBS_USER')), repos = 'https://cran.rstudio.com/')"
 RUN Rscript -e "install.packages('remotes', repos = 'https://cran.rstudio.com')"
 COPY DESCRIPTION .
-RUN Rscript -e "remotes::install_deps(repos = 'https://cran.rstudio.com')"
+# Packages update once in a while. We (arbitrarily) update them by invalidating the cache monthly.
+# It would be better to update the DESCRIPTION file every time to invalidate the cache, but that's a pain.
+RUN date +%Y-%m && \
+    Rscript -e "remotes::install_deps(repos = 'https://cran.rstudio.com')"
 RUN Rscript -e "devtools::install_github('mingdeyu/dgpsi-R')"
 RUN Rscript -e "devtools::install_github('mbinois/RRembo')"
 RUN rm -f DESCRIPTION
