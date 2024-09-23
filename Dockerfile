@@ -1,5 +1,7 @@
 FROM rocker/rstudio:latest
 
+LABEL org.opencontainers.image.source https://github.com/timothee-bacri/Rstudio-docker
+
 ARG CONDA_PATH=/shared/miniconda
 ARG CONDA_ENV_PATH=${CONDA_PATH}/envs/dgp_si_R_2_4_0_9000
 ARG USERS="bertrand boyun daniel deyu ivis muhammad timothee"
