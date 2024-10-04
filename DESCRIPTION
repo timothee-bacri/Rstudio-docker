@@ -63,6 +63,6 @@ Imports:
   # GPvecchia,
   rstudioapi
 Remotes:
-    # Force the development version of dgpsi
-    mingdeyu/dgpsi-R,
-    mbinois/RRembo
+  # Force the development version of dgpsi
+  mingdeyu/dgpsi-R,
+  mbinois/RRembo
