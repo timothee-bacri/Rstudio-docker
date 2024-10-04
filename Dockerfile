@@ -54,8 +54,7 @@ RUN apt-get update && \
 COPY DESCRIPTION .
 # Packages update once in a while. We (arbitrarily) update them by invalidating the cache monthly by updating DESCRIPTION
 RUN date +%Y-%m && \
-    echo "" >> DESCRIPTION
-RUN Rscript -e "install.packages('remotes', repos = 'https://cran.rstudio.com')"
+    Rscript -e "install.packages('remotes', repos = 'https://cran.rstudio.com')"
 RUN rm -f DESCRIPTION
 
 # Users can read and copy files in /shared
