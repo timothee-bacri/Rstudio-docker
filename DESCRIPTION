@@ -57,14 +57,15 @@ Imports:
     webshot,
     # Necessary for RRembo
     eaf,
+    # Specify Remotes to install the development (latest) version
     RRembo,
     # # Optimize the acquisition functin with parallel multi-start
     # doFuture,
     # doRNG,
     # GPvecchia,
     rstudioapi,
+    # Specify Remotes to install the development (latest) version
     dgpsi
 Remotes:
-    # Force the development version of dgpsi
     mingdeyu/dgpsi-R,
     mbinois/RRembo
