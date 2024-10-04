@@ -13,11 +13,11 @@ RUN apt-get update && \
     apt-get -y autoclean
 
 RUN apt-get -y --no-install-recommends install libcurl4-openssl-dev
+# packages (devtools, dgpsi)
 RUN apt-get -y --no-install-recommends install libfontconfig1-dev
 RUN apt-get -y --no-install-recommends install libxml2-dev
 RUN apt-get -y --no-install-recommends install libudunits2-dev
 RUN apt-get -y --no-install-recommends install libssl-dev
-RUN apt-get -y --no-install-recommends install libfontconfig1-dev
 RUN apt-get -y --no-install-recommends install libproj-dev
 RUN apt-get -y --no-install-recommends install cmake
 RUN apt-get -y --no-install-recommends install libgdal-dev
