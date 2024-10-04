@@ -51,14 +51,11 @@ RUN apt-get update && \
 
 # Install packages while making the image small, and does not reinstall them if they are already there and updated
 # RUN Rscript -e "install.packages('remotes', lib = normalizePath(Sys.getenv('R_LIBS_USER')), repos = 'https://cran.rstudio.com/')"
-RUN Rscript -e "install.packages('remotes', repos = 'https://cran.rstudio.com')"
 COPY DESCRIPTION .
-# Packages update once in a while. We (arbitrarily) update them by invalidating the cache monthly.
-# It would be better to update the DESCRIPTION file every time to invalidate the cache, but that's a pain.
+# Packages update once in a while. We (arbitrarily) update them by invalidating the cache monthly by updating DESCRIPTION
 RUN date +%Y-%m && \
-    Rscript -e "remotes::install_deps(repos = 'https://cran.rstudio.com')"
-RUN Rscript -e "devtools::install_github('mingdeyu/dgpsi-R')"
-RUN Rscript -e "devtools::install_github('mbinois/RRembo')"
+    echo "" >> DESCRIPTION
+RUN Rscript -e "install.packages('remotes', repos = 'https://cran.rstudio.com')"
 RUN rm -f DESCRIPTION
 
 # Users can read and copy files in /shared
