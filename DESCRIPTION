@@ -57,11 +57,13 @@ Imports:
   webshot,
   # Necessary for RRembo
   eaf,
+  RRembo,
   # # Optimize the acquisition functin with parallel multi-start
   # doFuture,
   # doRNG,
   # GPvecchia,
-  rstudioapi
+  rstudioapi,
+  dgpsi
 Remotes:
   # Force the development version of dgpsi
   mingdeyu/dgpsi-R,
