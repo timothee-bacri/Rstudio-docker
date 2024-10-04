@@ -1,5 +1,4 @@
 Imports:
-    # Planting-Tools app
     car,
     shinyjs,
     shiny,
@@ -35,7 +34,6 @@ Imports:
     lwgeom,
     mvtnorm,
     prefeR
-    # Planting-Tools timothee with Bayesian Optimization
     lhs,
     sensitivity,
     devtools,
@@ -47,25 +45,17 @@ Imports:
     zipfR,
     DiceOptim,
     reticulate,
-    # For coding
     beepr,
-    # MCA
     FactoMineR,
-    # To plot the best map, and save it to a file
     leaflet,
     mapview,
     webshot,
-    # Necessary for RRembo
     eaf,
-    # Specify Remotes to install the latest version
     RRembo,
-    # # Optimize the acquisition functin with parallel multi-start
-    # doFuture,
-    # doRNG,
-    # GPvecchia,
     rstudioapi,
-    # Specify Remotes to install the latest version
-    dgpsi
+    dgpsi,
+    doFuture,
+    doRNG
 Remotes:
     mingdeyu/dgpsi-R,
     mbinois/RRembo
