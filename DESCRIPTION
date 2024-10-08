@@ -55,7 +55,8 @@ Imports:
     rstudioapi,
     dgpsi,
     doFuture,
-    doRNG
+    doRNG,
+    flock
 Remotes:
     mingdeyu/dgpsi-R,
     mbinois/RRembo
