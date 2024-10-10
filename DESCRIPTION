@@ -55,6 +55,7 @@ Imports:
     rstudioapi,
     dgpsi,
     doFuture,
+    promises,
     doRNG,
     flock
 Remotes:
