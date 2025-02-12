@@ -20,12 +20,12 @@ RUN apt-get update && \
     apt-get -y autoremove --purge && \
     rm -rf /var/lib/apt/lists/*
 
-RUN apt -y --no-install-recommends install && \
-    libcurl4-openssl-dev && \
+RUN apt-get -y --no-install-recommends install \
+    libcurl4-openssl-dev \
     # packages (devtools, dgpsi)
-    libfontconfig1-dev libxml2-dev libudunits2-dev libssl-dev libproj-dev cmake libgdal-dev libharfbuzz-dev libfribidi-dev && \
+    libfontconfig1-dev libxml2-dev libudunits2-dev libssl-dev libproj-dev cmake libgdal-dev libharfbuzz-dev libfribidi-dev \
     # For RRembo, it depends on eaf
-    libgsl-dev libglu1-mesa && \
+    libgsl-dev libglu1-mesa \
     # For dgpsi
     libtiff-dev libjpeg-dev
 
