@@ -50,6 +50,7 @@ RUN date +%Y-%m && \
     Rscript -e "install.packages('remotes')" && \
     for description_file in DESCRIPTION_*; do \
         cp $description_file DESCRIPTION && \
+        ls -alh && tail DESCRIPTION && \
         Rscript -e "remotes::install_deps(repos = 'https://cran.rstudio.com')"; \
     done
 RUN rm -f DESCRIPTION_*
