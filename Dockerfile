@@ -14,6 +14,14 @@ ARG USERS="bertrand boyun daniel deyu ivis muhammad timothee"
 ARG DEFAULT_PASSWORD="orchid"
 ARG DEBIAN_FRONTEND=noninteractive
 
+# Miniconda only supports s390x and x86_64 (amd64) and aarch64 (arm64)
+# But rocker:rstudio only supports amd64 and arm64
+RUN arch=$(uname -p) && \
+    if [ "$arch" != "x86_64" -a "$arch" != "aarch64" ]; then \
+        echo "Unsupported architecture: $arch"; \
+        exit 1; \
+    fi
+
 RUN apt-get update && \
     apt-get -y upgrade && \
     apt-get -y --no-install-recommends install \
@@ -28,14 +36,6 @@ RUN apt-get update && \
     apt-get -y autoremove --purge && \
     rm -rf /var/lib/apt/lists/*
 
-# Miniconda only supports s390x and x86_64 (amd64) and aarch64 (arm64)
-# But rocker:rstudio only supports amd64 and arm64
-RUN arch=$(uname -p) && \
-    if [ "$arch" != "x86_64" -a "$arch" != "aarch64" ]; then \
-        echo "Unsupported architecture: $arch"; \
-        exit 1; \
-    fi
-
 # Miniconda https://docs.anaconda.com/miniconda/
 RUN mkdir -p "${CONDA_PATH}"
 RUN arch=$(uname -p) && \
@@ -43,17 +43,24 @@ RUN arch=$(uname -p) && \
     bash "${CONDA_PATH}/miniconda.sh" -b -u -p "${CONDA_PATH}" && \
     rm -f "${CONDA_PATH}/miniconda.sh"
 
+## Install packages while making the image small
+#COPY DESCRIPTION_* .
+## Packages update once in a while. We (arbitrarily) update them by invalidating the cache monthly by updating DESCRIPTION
+#RUN date +%Y-%m && \
+#    Rscript -e "install.packages('remotes')" && \
+#    for description_file in DESCRIPTION_*; do \
+#        cp $description_file DESCRIPTION && \
+#        ls -alh && tail DESCRIPTION && \
+#        Rscript -e "remotes::install_deps(repos = 'https://cran.rstudio.com')"; \
+#    done
+#RUN rm -f DESCRIPTION_*
+
 # Install packages while making the image small
-COPY DESCRIPTION_* .
+COPY DESCRIPTION_timothee DESCRIPTION
 # Packages update once in a while. We (arbitrarily) update them by invalidating the cache monthly by updating DESCRIPTION
-RUN date +%Y-%m && \
-    Rscript -e "install.packages('remotes')" && \
-    for description_file in DESCRIPTION_*; do \
-        cp $description_file DESCRIPTION && \
-        ls -alh && tail DESCRIPTION && \
-        Rscript -e "remotes::install_deps(repos = 'https://cran.rstudio.com')"; \
-    done
-RUN rm -f DESCRIPTION_*
+RUN Rscript -e "install.packages('remotes')"
+RUN Rscript -e "remotes::install_deps(repos = 'https://cran.rstudio.com')"
+RUN rm -f DESCRIPTION
 
 # Users can read and copy files in /shared
 RUN addgroup rstudio-users
