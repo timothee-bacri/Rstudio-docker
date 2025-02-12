@@ -84,6 +84,7 @@ jobs:
           context: .
           push: true
           tags: timotheebacri/rstudio:latest
+          platforms: linux/amd64,linux/arm64
           labels: ${{ steps.meta.outputs.labels }}
           build-args: DGPSI_FOLDER_NAME=${{ env.DGPSI_FOLDER_NAME }}
           #cache-from: type=gha
