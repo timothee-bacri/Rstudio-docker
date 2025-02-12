@@ -3,7 +3,13 @@ FROM rocker/rstudio:latest
 LABEL org.opencontainers.image.source https://github.com/timothee-bacri/Rstudio-docker
 
 ARG CONDA_PATH=/shared/miniconda
-ARG CONDA_ENV_PATH=${CONDA_PATH}/envs/dgp_si_R_2_4_0_9000
+
+# Set dgpsi path version, BUILD ARG
+# curl -sSL https://raw.githubusercontent.com/mingdeyu/dgpsi-R/refs/heads/master/R/initi_py.R | grep "env_name *<-" | grep --invert-match "^\s*#" | grep --only-matching --perl-regexp 'dgp.*\d'
+ARG DGPSI_FOLDER_NAME
+
+ARG CONDA_ENV_PATH=${CONDA_PATH}/envs/${DGPSI_FOLDER_NAME}
+
 ARG USERS="bertrand boyun daniel deyu ivis muhammad timothee"
 ARG DEFAULT_PASSWORD="orchid"
 ARG DEBIAN_FRONTEND=noninteractive
@@ -14,21 +20,15 @@ RUN apt-get update && \
     apt-get -y autoremove --purge && \
     rm -rf /var/lib/apt/lists/*
 
-RUN apt-get -y --no-install-recommends install libcurl4-openssl-dev
-# packages (devtools, dgpsi)
-RUN apt-get -y --no-install-recommends install libfontconfig1-dev
-RUN apt-get -y --no-install-recommends install libxml2-dev
-RUN apt-get -y --no-install-recommends install libudunits2-dev
-RUN apt-get -y --no-install-recommends install libssl-dev
-RUN apt-get -y --no-install-recommends install libproj-dev
-RUN apt-get -y --no-install-recommends install cmake
-RUN apt-get -y --no-install-recommends install libgdal-dev
-RUN apt-get -y --no-install-recommends install libharfbuzz-dev
-RUN apt-get -y --no-install-recommends install libfribidi-dev
-# For RRembo, it depends on eaf
-RUN apt-get -y --no-install-recommends install libgsl-dev libglu1-mesa
-# For dgpsi
-RUN apt-get -y --no-install-recommends install libtiff-dev libjpeg-dev
+RUN apt-get -y --no-install-recommends install && \
+    libcurl4-openssl-dev && \
+    # packages (devtools, dgpsi)
+    libfontconfig1-dev libxml2-dev libudunits2-dev libssl-dev libproj-dev cmake libgdal-dev libharfbuzz-dev libfribidi-dev && \
+    # For RRembo, it depends on eaf
+    libgsl-dev libglu1-mesa && \
+    # For dgpsi
+    libtiff-dev libjpeg-dev
+
 # Miniconda only supports s390x and x86_64 (amd64) and aarch64 (arm64)
 # But rocker:rstudio only supports amd64 and arm64
 RUN arch=$(uname -p) && \
@@ -39,15 +39,10 @@ RUN arch=$(uname -p) && \
 
 # Miniconda https://docs.anaconda.com/miniconda/
 RUN mkdir -p "${CONDA_PATH}"
-RUN arch=$(uname -p) && wget "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${arch}.sh" -O "${CONDA_PATH}/miniconda.sh"
-RUN bash "${CONDA_PATH}/miniconda.sh" -b -u -p "${CONDA_PATH}"
-RUN rm -f "${CONDA_PATH}/miniconda.sh"
-
-RUN apt-get update && \
-    apt-get -y upgrade && \
-    apt-get -y clean && \
-    apt-get -y autoremove --purge && \
-    apt-get -y autoclean
+RUN arch=$(uname -p) && \
+    wget "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${arch}.sh" -O "${CONDA_PATH}/miniconda.sh" && \
+    bash "${CONDA_PATH}/miniconda.sh" -b -u -p "${CONDA_PATH}" && \
+    rm -f "${CONDA_PATH}/miniconda.sh"
 
 # Install packages while making the image small
 COPY DESCRIPTION_* .
