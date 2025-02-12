@@ -29,6 +29,19 @@ jobs:
       contents: read
       packages: write
 
+    strategy:
+      fail-fast: false # stop GH from cancelling all matrix builds if one fails
+      matrix:
+        platform:
+          - recipe-asus-nvidia.yml
+          - recipe-asus-nvidia.yml
+    steps:
+      # the build is fully handled by the reusable github action
+      - name: Build Custom Image
+        uses: blue-build/github-action@v1.8
+        with:
+          recipe: ${{ matrix.recipe }}
+
     steps:
       #- name: set timestamp as environment variables
       #  # https://lannonbr.com/blog/2020-04-16-gh-actions-job-outputs
@@ -84,7 +97,7 @@ jobs:
           context: .
           push: true
           tags: timotheebacri/rstudio:latest
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/arm64
           labels: ${{ steps.meta.outputs.labels }}
           build-args: DGPSI_FOLDER_NAME=${{ env.DGPSI_FOLDER_NAME }}
           #cache-from: type=gha
