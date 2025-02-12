@@ -47,7 +47,7 @@ RUN arch=$(uname -p) && \
 COPY DESCRIPTION_* .
 # Packages update once in a while. We (arbitrarily) update them by invalidating the cache monthly by updating DESCRIPTION
 RUN date +%Y-%m && \
-    Rscript -e "install.packages('remotes', repos = 'https://cran.rstudio.com')" && \
+    Rscript -e "install.packages('remotes')" && \
     for description_file in DESCRIPTION_*; do \
         cp $description_file DESCRIPTION && \
         Rscript -e "remotes::install_deps(repos = 'https://cran.rstudio.com')"; \
