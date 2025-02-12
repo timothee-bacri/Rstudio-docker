@@ -49,14 +49,16 @@ RUN apt-get update && \
     apt-get -y autoremove --purge && \
     apt-get -y autoclean
 
-# Install packages while making the image small, and does not reinstall them if they are already there and updated
-# RUN Rscript -e "install.packages('remotes', lib = normalizePath(Sys.getenv('R_LIBS_USER')), repos = 'https://cran.rstudio.com/')"
-COPY DESCRIPTION .
+# Install packages while making the image small
+COPY DESCRIPTION_* .
 # Packages update once in a while. We (arbitrarily) update them by invalidating the cache monthly by updating DESCRIPTION
 RUN date +%Y-%m && \
     Rscript -e "install.packages('remotes', repos = 'https://cran.rstudio.com')" && \
-    Rscript -e "remotes::install_deps(repos = 'https://cran.rstudio.com')"
-RUN rm -f DESCRIPTION
+    for description_file in DESCRIPTION_*; do \
+        cp $description_file DESCRIPTION && \
+        Rscript -e "remotes::install_deps(repos = 'https://cran.rstudio.com')"; \
+    done
+RUN rm -f DESCRIPTION_*
 
 # Users can read and copy files in /shared
 RUN addgroup rstudio-users
