@@ -16,18 +16,17 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
     apt-get -y upgrade && \
-    apt-get -y clean && \
-    apt-get -y autoremove --purge && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN apt-get -y --no-install-recommends install \
+    apt-get -y --no-install-recommends install \
     libcurl4-openssl-dev \
     # packages (devtools, dgpsi)
     libfontconfig1-dev libxml2-dev libudunits2-dev libssl-dev libproj-dev cmake libgdal-dev libharfbuzz-dev libfribidi-dev \
     # For RRembo, it depends on eaf
     libgsl-dev libglu1-mesa \
     # For dgpsi
-    libtiff-dev libjpeg-dev
+    libtiff-dev libjpeg-dev && \
+    apt-get -y clean && \
+    apt-get -y autoremove --purge && \
+    rm -rf /var/lib/apt/lists/*
 
 # Miniconda only supports s390x and x86_64 (amd64) and aarch64 (arm64)
 # But rocker:rstudio only supports amd64 and arm64
