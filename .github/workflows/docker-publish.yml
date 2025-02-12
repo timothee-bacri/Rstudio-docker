@@ -1,9 +1,4 @@
-name: Docker
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
+name: Publish docker image
 
 on:
   schedule:
@@ -13,6 +8,11 @@ on:
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
+
+concurrency:
+  # only run one build at a time by cancelling old ones
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -38,6 +38,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
+      - name: Set dgpsi folder name
+        run: echo "DGPSI_FOLDER_NAME=$(curl -sSL https://raw.githubusercontent.com/mingdeyu/dgpsi-R/refs/heads/master/R/initi_py.R | grep "env_name *<-" | grep --invert-match "^\s*#" | grep --only-matching --perl-regexp 'dgp.*\d')" >> $GITHUB_ENV
+      
       #- name: Cache R packages
       #  uses: actions/cache@v4
       #  with:
@@ -45,6 +48,10 @@ jobs:
       #    key: ${{ runner.os }}-r-library-${{ env.TIMESTAMP }}
       #    restore-keys: |
       #      ${{ runner.os }}-r-library-${{ env.TIMESTAMP }}
+
+      # https://github.com/docker/setup-qemu-action
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
       # Set up BuildKit Docker container builder to be able to build
       # multi-platform images and export cache
@@ -58,8 +65,8 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.DOCKER_GITHUB_TOKEN_RSTUDIO_SECRET }}
+          username: timotheebacri
+          password: ${{ secrets.DOCKERHUB_DOCKER_TOKEN_RSTUDIO_SECRET }}
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
@@ -76,8 +83,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: timotheebacri/rstudio:latest
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: DGPSI_FOLDER_NAME=${{ env.DGPSI_FOLDER_NAME }}
           #cache-from: type=gha
           #cache-to: type=gha,mode=max
           cache-from: type=registry,ref=${{ steps.meta.outputs.tags }}
