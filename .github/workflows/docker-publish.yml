@@ -16,7 +16,7 @@ concurrency:
 
 env:
   # Use docker.io for Docker Hub if empty
-  REGISTRY: ghcr.io
+  #REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
   # R packages are cached for speed. Invalidate cache weekly.
