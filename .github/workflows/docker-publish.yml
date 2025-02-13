@@ -5,8 +5,14 @@ on:
     - cron: '0 0 * * MON'
   push:
     branches: [ "main" ]
+    paths:
+      - "*.Dockerfile"
+      - "DESCRIPTION_*"
   pull_request:
     branches: [ "main" ]
+    paths:
+      - "*.Dockerfile"
+      - "DESCRIPTION_*"
   workflow_dispatch:
 
 concurrency:
