@@ -8,11 +8,13 @@ on:
     paths:
       - "*.Dockerfile"
       - "DESCRIPTION_*"
+      - ".github/workflows/docker-publish.yml"
   pull_request:
     branches: [ "main" ]
     paths:
       - "*.Dockerfile"
       - "DESCRIPTION_*"
+      - ".github/workflows/docker-publish.yml"
   workflow_dispatch:
 
 concurrency:
@@ -30,16 +32,23 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+        include:
+          - os: ubuntu-latest
+            platform: linux/amd64
+            dockerfile: amd64.Dockerfile
+          - os: ubuntu-24.04-arm
+            platform: linux/arm64
+            dockerfile: arm64.Dockerfile
+    
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: read
       packages: write
     
     steps:
-      #- name: set timestamp as environment variables
-      #  # https://lannonbr.com/blog/2020-04-16-gh-actions-job-outputs
-      #  # https://docs.github.com/en/actions/using-jobs/defining-outputs-for-jobs
-      #  run: echo "TIMESTAMP=$(date -d '${{ github.event.head_commit.timestamp }}' +'%Y-%m')" >> $GITHUB_ENV
       
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -55,9 +64,9 @@ jobs:
       #    restore-keys: |
       #      ${{ runner.os }}-r-library-${{ env.TIMESTAMP }}
 
-      # https://github.com/docker/setup-qemu-action
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+      ## https://github.com/docker/setup-qemu-action
+      #- name: Set up QEMU
+      #  uses: docker/setup-qemu-action@v3
 
       # Set up BuildKit Docker container builder to be able to build
       # multi-platform images and export cache
@@ -88,9 +97,10 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          file: ${{ matrix.dockerfile }}
           push: true
-          tags: timotheebacri/rstudio:latest
-          platforms: linux/arm64
+          tags: timotheebacri/rstudio:latest-${{ matrix.platform }}
+          #platforms: linux/arm64
           labels: ${{ steps.meta.outputs.labels }}
           build-args: DGPSI_FOLDER_NAME=${{ env.DGPSI_FOLDER_NAME }}
           #cache-from: type=gha
