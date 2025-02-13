@@ -44,14 +44,16 @@ RUN arch=$(uname -p) && \
     rm -f "${CONDA_PATH}/miniconda.sh"
 
 # Install packages while making the image small
-COPY DESCRIPTION_timothee DESCRIPTION
+COPY DESCRIPTION_* .
 # Packages update once in a while. We (arbitrarily) update them by invalidating the cache monthly by updating DESCRIPTION
-#RUN Rscript -e "install.packages('usethis')"
-#RUN Rscript -e "install.packages('devtools')"
-#RUN Rscript -e "devtools::install_github('mingdeyu/dgpsi-R')"
-RUN Rscript -e "install.packages('remotes')"
-RUN Rscript -e "remotes::install_deps(repos = 'https://cran.rstudio.com')"
-RUN rm -f DESCRIPTION
+RUN date +%Y-%m && \
+    Rscript -e "install.packages('remotes')" && \
+    for description_file in DESCRIPTION_*; do \
+        cp $description_file DESCRIPTION && \
+        ls -alh && tail DESCRIPTION && \
+        Rscript -e "remotes::install_deps(repos = 'https://cran.rstudio.com')"; \
+    done
+RUN rm -f DESCRIPTION_*
 
 # Users can read and copy files in /shared
 RUN addgroup rstudio-users
