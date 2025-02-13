@@ -43,18 +43,6 @@ RUN arch=$(uname -p) && \
     bash "${CONDA_PATH}/miniconda.sh" -b -u -p "${CONDA_PATH}" && \
     rm -f "${CONDA_PATH}/miniconda.sh"
 
-## Install packages while making the image small
-#COPY DESCRIPTION_* .
-## Packages update once in a while. We (arbitrarily) update them by invalidating the cache monthly by updating DESCRIPTION
-#RUN date +%Y-%m && \
-#    Rscript -e "install.packages('remotes')" && \
-#    for description_file in DESCRIPTION_*; do \
-#        cp $description_file DESCRIPTION && \
-#        ls -alh && tail DESCRIPTION && \
-#        Rscript -e "remotes::install_deps(repos = 'https://cran.rstudio.com')"; \
-#    done
-#RUN rm -f DESCRIPTION_*
-
 # Install packages while making the image small
 COPY DESCRIPTION_timothee DESCRIPTION
 # Packages update once in a while. We (arbitrarily) update them by invalidating the cache monthly by updating DESCRIPTION
