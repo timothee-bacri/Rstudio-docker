@@ -32,10 +32,10 @@ jobs:
         # https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
         include:
           - os: ubuntu-latest
-            platform: linux/amd64
+            platform: amd64
             dockerfile: amd64.Dockerfile
           - os: ubuntu-24.04-arm
-            platform: linux/arm64
+            platform: arm64
             dockerfile: arm64.Dockerfile
     
     runs-on: ${{ matrix.os }}
