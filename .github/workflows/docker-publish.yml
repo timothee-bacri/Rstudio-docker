@@ -28,6 +28,7 @@ env:
 jobs:
   build:
     strategy:
+      fail-fast: false # stop GH from cancelling all matrix builds if one fails
       matrix:
         # https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
         include:
