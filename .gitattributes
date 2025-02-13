@@ -1,0 +1,2 @@
+# https://github.com/neondatabase/neon/issues/9369
+*.Dockerfile linguist-language=Dockerfile
