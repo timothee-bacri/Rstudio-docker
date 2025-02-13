@@ -1,10 +1,11 @@
 FROM rocker/rstudio:latest
 
-RUN apt-get update && apt-get install -y util-linux dmidecode lshw
+RUN apt-get update && apt-get install -y util-linux dmidecode lshw hwinfo
 RUN lscpu
 RUN cat /proc/cpuinfo
 RUN dmidecode --type processor
 RUN lshw -C CPU
+RUN hwinfo
 
 LABEL org.opencontainers.image.source https://github.com/timothee-bacri/Rstudio-docker
 
