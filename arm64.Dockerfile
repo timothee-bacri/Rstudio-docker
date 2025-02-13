@@ -46,6 +46,7 @@ RUN arch=$(uname -p) && \
 # Install packages while making the image small
 COPY DESCRIPTION_timothee DESCRIPTION
 # Packages update once in a while. We (arbitrarily) update them by invalidating the cache monthly by updating DESCRIPTION
+RUN Rscript -e "install.packages('usethis')"
 RUN Rscript -e "install.packages('devtools')"
 RUN Rscript -e "devtools::install_github('mingdeyu/dgpsi-R')"
 RUN Rscript -e "install.packages('remotes')"
