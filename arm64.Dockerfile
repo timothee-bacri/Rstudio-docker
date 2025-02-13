@@ -1,6 +1,6 @@
 FROM rocker/rstudio:latest
 
-RUN apt install -y util-linux dmidecode lshw
+RUN apt-get update && apt-get install -y util-linux dmidecode lshw
 RUN lscpu
 RUN cat /proc/cpuinfo
 RUN dmidecode --type processor
