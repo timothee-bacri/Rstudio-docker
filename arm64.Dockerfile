@@ -5,7 +5,7 @@ RUN lscpu
 RUN cat /proc/cpuinfo
 RUN dmidecode --type processor
 RUN lshw -C CPU
-RUN hwinfo
+RUN hwinfo --cpu
 
 LABEL org.opencontainers.image.source https://github.com/timothee-bacri/Rstudio-docker
 
