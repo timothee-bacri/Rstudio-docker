@@ -3,6 +3,7 @@ FROM rocker/rstudio:latest
 RUN apt install -y util-linux
 RUN lscpu
 RUN cat /proc/cpuinfo
+RUN dmidecode --type processor
 
 LABEL org.opencontainers.image.source https://github.com/timothee-bacri/Rstudio-docker
 
