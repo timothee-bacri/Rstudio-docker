@@ -14,6 +14,8 @@ ARG USERS="bertrand boyun daniel deyu ivis muhammad timothee"
 ARG DEFAULT_PASSWORD="orchid"
 ARG DEBIAN_FRONTEND=noninteractive
 
+RUN Rscript -e "install.packages('benchmarkme'); print(benchmarkme::get_cpu())"
+
 # Miniconda only supports s390x and x86_64 (amd64) and aarch64 (arm64)
 # But rocker:rstudio only supports amd64 and arm64
 RUN arch=$(uname -p) && \
