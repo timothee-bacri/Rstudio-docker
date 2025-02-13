@@ -34,7 +34,7 @@ RUN apt-get update && \
     libtiff-dev libjpeg-dev && \
     apt-get -y clean && \
     apt-get -y autoremove --purge && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* /tmp/*
 
 # Miniconda https://docs.anaconda.com/miniconda/
 RUN mkdir -p "${CONDA_PATH}"
@@ -52,8 +52,9 @@ RUN date +%Y-%m && \
         cp $description_file DESCRIPTION && \
         ls -alh && tail DESCRIPTION && \
         Rscript -e "remotes::install_deps(repos = 'https://cran.rstudio.com')"; \
-    done
-RUN rm -f DESCRIPTION_*
+    done && \
+    rm -rf /tmp/*
+RUN rm -f DESCRIPTION*
 
 # Users can read and copy files in /shared
 RUN addgroup rstudio-users
