@@ -1,5 +1,9 @@
 FROM rocker/rstudio:latest
 
+RUN apt install -y util-linux
+RUN lscpu
+RUN cat /proc/cpuinfo
+
 LABEL org.opencontainers.image.source https://github.com/timothee-bacri/Rstudio-docker
 
 ARG CONDA_PATH=/shared/miniconda
