@@ -1,12 +1,5 @@
 FROM rocker/rstudio:latest
 
-RUN apt-get update && apt-get install -y util-linux dmidecode lshw hwinfo
-RUN lscpu
-RUN cat /proc/cpuinfo
-RUN dmidecode --type processor
-RUN lshw -C CPU
-RUN hwinfo --cpu
-
 LABEL org.opencontainers.image.source https://github.com/timothee-bacri/Rstudio-docker
 
 ARG CONDA_PATH=/shared/miniconda
@@ -42,10 +35,6 @@ RUN apt-get update && \
     apt-get -y clean && \
     apt-get -y autoremove --purge && \
     rm -rf /var/lib/apt/lists/* /tmp/*
-
-RUN Rscript -e "install.packages('httr')"
-RUN Rscript -e "install.packages('benchmarkme')"
-RUN Rscript -e "print(benchmarkme::get_cpu())"
 
 # Miniconda https://docs.anaconda.com/miniconda/
 RUN mkdir -p "${CONDA_PATH}"
