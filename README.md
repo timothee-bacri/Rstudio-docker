@@ -15,6 +15,7 @@ Packages and Miniconda make the container size big, but everything about `dgpsi`
 To make it simpler, `apt install`, `apt search`, `apt update` and their `apt-get` variants are allowed to all users.
 
 ## IMPORTANT
+- Pick between the `amd64` and `arm64` images
 - To avoid resetting passwords on every container recreation, bind-mount `/etc/shadow`
 - To connect to a GitHub repository easily, bind-mount your SSH keys to `~/.ssh/`
 - The default user passwords are "orchid" (without the quotation marks)
@@ -23,7 +24,8 @@ To make it simpler, `apt install`, `apt search`, `apt update` and their `apt-get
 ```yaml
 services:
   rstudio:
-    image: ghcr.io/timothee-bacri/rstudio-docker:main
+    # image: timotheebacri/rstudio-docker:amd64
+    image: timotheebacri/rstudio-docker:arm64
     container_name: rstudio
     # environment:
       # Default user is rstudio
@@ -49,9 +51,9 @@ services:
       # https://github.com/rocker-org/rocker-versioned/blob/master/rstudio/add_shiny.sh
       # ADD: none # none,shiny
 
-    # volumes:
-      # - /path/to/rstudio-files/home/:/home
-      # - /path/to/rstudio-files/etc-shadow:/etc/shadow:ro
+    volumes:
+      - /path/to/rstudio-files/home/:/home
+      - /path/to/rstudio-files/etc-shadow:/etc/shadow:ro
     ports:
       - 8787:8787
 ```
