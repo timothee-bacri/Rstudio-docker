@@ -16,7 +16,7 @@ To make it simpler, `apt install`, `apt search`, `apt update` and their `apt-get
 
 ## IMPORTANT
 - Pick between the `amd64` and `arm64` images
-- To avoid resetting passwords on every container recreation, bind-mount `/etc/shadow`
+- To avoid resetting passwords on every container recreation, bind-mount `/etc` into a named volume
 - To connect to a GitHub repository easily, bind-mount your SSH keys to `~/.ssh/`
 - The default user passwords are "orchid" (without the quotation marks)
 
@@ -52,8 +52,13 @@ services:
       # ADD: none # none,shiny
 
     volumes:
-      - /path/to/rstudio-files/home/:/home
-      - /path/to/rstudio-files/etc-shadow:/etc/shadow:ro
+      - /home/dw356:/home/dw356
+      - /home/ik354:/home/ik354
+      - /home/mh1176:/home/mh1176
+      - /home/trfb201:/home/trfb201
+      - rstudio_etc:/etc:ro
     ports:
       - 8787:8787
+volumes:
+  - rstudio_etc
 ```
