@@ -61,15 +61,15 @@ RUN rm -f DESCRIPTION*
 RUN addgroup rstudio-users
 
 ## Initialize users
-#RUN for i in "${!USERS[@]}"; do \
-#        user="${USERS[i]}" && \
-#        user_id="${USER_IDS[i]}" && \
-#        adduser --disabled-password --gecos "" --uid "${user_id}" "${user}" && \
-#        echo "${user}:${DEFAULT_PASSWORD}" | chpasswd && \
-#        usermod --append --groups rstudio-users "${user}" && \
-#        mkdir -p "/shared/${user}" && \
-#        chown -R "${user}" "/shared/${user}"; \
-#    done
+RUN for i in "${!USERS[@]}"; do \
+        user="${USERS[i]}" && \
+        user_id="${USER_IDS[i]}" && \
+        adduser --disabled-password --gecos "" --uid "${user_id}" --shell /bin/bash "${user}" && \
+        echo "${user}:${DEFAULT_PASSWORD}" | chpasswd && \
+        usermod --append --groups rstudio-users "${user}" && \
+        mkdir -p "/shared/${user}" && \
+        chown -R "${user}" "/shared/${user}"; \
+    done
 RUN chgrp -R rstudio-users /shared
 RUN chmod -R g+s /shared
 
