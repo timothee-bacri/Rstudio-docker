@@ -70,6 +70,8 @@ RUN for i in "${!USERS[@]}"; do \
         mkdir -p "/shared/${user}" && \
         chown -R "${user}" "/shared/${user}"; \
     done
+RUN chgrp -R rstudio-users /shared
+RUN chmod -R g+s /shared
 
 # Make conda command available to all
 ARG PATH_DOLLAR='$PATH' # do not interpolate $PATH, this is meant to update path in .bashrc
