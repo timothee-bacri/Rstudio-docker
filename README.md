@@ -24,8 +24,8 @@ To make it simpler, `apt install`, `apt search`, `apt update` and their `apt-get
 ```yaml
 services:
   rstudio:
-    # image: timotheebacri/rstudio-docker:amd64
-    image: timotheebacri/rstudio-docker:arm64
+    # image: timotheebacri/rstudio:latest-amd64
+    image: timotheebacri/rstudio:latest-arm64
     container_name: rstudio
     # environment:
       # Default user is rstudio
