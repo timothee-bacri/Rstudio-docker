@@ -10,7 +10,8 @@ ARG DGPSI_FOLDER_NAME
 
 ARG CONDA_ENV_PATH=${CONDA_PATH}/envs/${DGPSI_FOLDER_NAME}
 
-ARG USERS="bertrand boyun daniel deyu ivis muhammad timothee"
+ARG USERS="dw356 ik354 mh1176 trfb201"
+#ARG USER_IDS="502 505 503 507"
 ARG DEFAULT_PASSWORD="orchid"
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -59,14 +60,16 @@ RUN rm -f DESCRIPTION*
 # Users can read and copy files in /shared
 RUN addgroup rstudio-users
 
-# Initialize users
-RUN for user in ${USERS}; do \
-        adduser --disabled-password --gecos "" "${user}" && \
-        echo "${user}:${DEFAULT_PASSWORD}" | chpasswd && \
-        usermod --append --groups rstudio-users "${user}" && \
-        mkdir -p "/shared/${user}" && \
-        chown -R "${user}" "/shared/${user}"; \
-    done
+## Initialize users
+#RUN for i in "${!USERS[@]}"; do \
+#        user="${USERS[i]}" && \
+#        user_id="${USER_IDS[i]}" && \
+#        adduser --disabled-password --gecos "" --uid "${user_id}" "${user}" && \
+#        echo "${user}:${DEFAULT_PASSWORD}" | chpasswd && \
+#        usermod --append --groups rstudio-users "${user}" && \
+#        mkdir -p "/shared/${user}" && \
+#        chown -R "${user}" "/shared/${user}"; \
+#    done
 RUN chgrp -R rstudio-users /shared
 RUN chmod -R g+s /shared
 
@@ -74,9 +77,8 @@ RUN chmod -R g+s /shared
 ARG PATH_DOLLAR='$PATH' # do not interpolate $PATH, this is meant to update path in .bashrc
 ARG COMMAND_EXPORT_PATH_BASHRC="export PATH=\"${CONDA_PATH}/bin:${PATH_DOLLAR}\""
 # $COMMAND_EXPORT_PATH_BASHRC contains: export PATH="<conda_path>/bin:$PATH"
-RUN for userpath in /home/*/ /root/; do \
-        echo "${COMMAND_EXPORT_PATH_BASHRC}" | tee -a "${userpath}/.bashrc"; \
-    done
+RUN echo "${COMMAND_EXPORT_PATH_BASHRC}" | tee -a "/etc/bash.bashrc"
+
 # Tell all R sessions about it
 RUN echo "options(reticulate.conda_binary = '${CONDA_PATH}/bin/conda')" | tee -a "$R_HOME/etc/Rprofile.site"
 
