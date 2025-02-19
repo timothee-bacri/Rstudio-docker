@@ -4,8 +4,10 @@
 Packages are listed in `DESCRIPTION`. This allows to reduce the image size slightly compared to `install.packages` and other methods.
 Also has the development versions of https://github.com/mingdeyu/dgpsi-R/ and https://github.com/mbinois/RRembo.
 
+`dgpsi::init_py()` is done in the image to avoid taking time for users.
+
 ## Conda
-Miniconda is installed for all users in `/shared/miniconda`, and `dgpsi` is setup in it with `dgpsi::init_py()`.
+Miniconda is installed for all users in `/shared/miniconda`.
 To make conda in `/shared/miniconda` work in the command line and R easily,
 1. `export PATH="/shared/miniconda/bin:${PATH}"` is appended to `~/.bashrc` for all users defined in the Dockerfile
 2. `options(reticulate.conda_binary = '/shared/minicond/bin/conda')` is appended to `$R_HOME/etc/Rprofile.site`
