@@ -37,7 +37,6 @@ RUN bash -c ' \
         for i in "${!USERS_ARRAY[@]}"; do \
             user="${USERS_ARRAY[i]}" && \
             user_id="${USER_IDS_ARRAY[i]}" && \
-            echo "i=$i in ${!USERS_ARRAY[@]}, user=$user, user_id=$user_id" && \
             adduser --disabled-password --comment "" --uid "${user_id}" --shell /bin/bash "${user}" && \
             echo "${user}:${DEFAULT_PASSWORD}" | chpasswd && \
             usermod --append --groups rstudio-users "${user}" && \
