@@ -26,6 +26,22 @@ RUN arch=$(uname -p) && \
         exit 1; \
     fi
 
+# Users can read and copy files in /shared
+RUN addgroup rstudio-users
+
+# Initialize users
+RUN for i in "${!USERS_ARRAY[@]}"; do \
+        user="${USERS_ARRAY[i]}" && \
+        user_id="${USER_IDS_ARRAY[i]}" && \
+        adduser --disabled-password --gecos "" --uid "${user_id}" --shell /bin/bash "${user}" && \
+        echo "${user}:${DEFAULT_PASSWORD}" | chpasswd && \
+        usermod --append --groups rstudio-users "${user}" && \
+        mkdir -p "/shared/${user}" && \
+        chown -R "${user}" "/shared/${user}"; \
+    done
+RUN chgrp -R rstudio-users /shared
+RUN chmod -R g+s /shared
+
 RUN apt-get update && \
     apt-get -y upgrade && \
     apt-get -y --no-install-recommends install \
@@ -61,22 +77,6 @@ RUN date +%Y-%m && \
     done && \
     rm -rf /tmp/*
 RUN rm -f DESCRIPTION*
-
-# Users can read and copy files in /shared
-RUN addgroup rstudio-users
-
-# Initialize users
-RUN for i in "${!USERS_ARRAY[@]}"; do \
-        user="${USERS_ARRAY[i]}" && \
-        user_id="${USER_IDS_ARRAY[i]}" && \
-        adduser --disabled-password --gecos "" --uid "${user_id}" --shell /bin/bash "${user}" && \
-        echo "${user}:${DEFAULT_PASSWORD}" | chpasswd && \
-        usermod --append --groups rstudio-users "${user}" && \
-        mkdir -p "/shared/${user}" && \
-        chown -R "${user}" "/shared/${user}"; \
-    done
-RUN chgrp -R rstudio-users /shared
-RUN chmod -R g+s /shared
 
 # Make conda command available to all
 ARG PATH_DOLLAR='$PATH' # do not interpolate $PATH, this is meant to update path in .bashrc
