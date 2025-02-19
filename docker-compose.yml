@@ -29,12 +29,22 @@ services:
 
     # Docker uses its own user ID to create files, so avoid mounting /home in read-write
     volumes:
-      # Make /home folders available in read-only to avoid screwing up folder ownership
-      #- /home:/host_home:ro # Linux
-      - /Users:/host_home:ro # MacOS
+      # Make user host home folders available in read-only to avoid screwing up folder ownership
+      #- /home/<user>:/host_home/<user>ro # Linux
       
-      # Local folder for /home, on host Docker will manage permission and ownership on its own
-      - ./RStudio/all_home:/home
+      # The user running the container should avoid mounting the same folder many times or it may crash Docker
+      - /Users/trfb201/docker/RStudio/home:/host_home/trfb201:ro
+      
+      - /Users/dw356:/host_home/dw356:ro
+      - /Users/ik354:/host_home/ik354:ro
+      - /Users/mh1176:/host_home/mh1176:ro
+      - /Users/jm622:/host_home/jm622:ro
+      - /Users/mcm216:/host_home/mcm216:ro
+      # Everyone can access shared in principle
+      - /Users/Shared:/host_home/Shared:ro
+      
+      # Local folder for /home, Docker will manage permission and ownership on its own
+      - /Users/trfb201/docker/RStudio/container_home:/home
 
       # Store new user passwords
       - rstudio_etc:/etc
