@@ -30,15 +30,17 @@ RUN arch=$(uname -p) && \
 RUN addgroup rstudio-users
 
 # Initialize users
-RUN for i in "${!USERS_ARRAY[@]}"; do \
-        user="${USERS_ARRAY[i]}" && \
-        user_id="${USER_IDS_ARRAY[i]}" && \
-        adduser --disabled-password --gecos "" --uid "${user_id}" --shell /bin/bash "${user}" && \
-        echo "${user}:${DEFAULT_PASSWORD}" | chpasswd && \
-        usermod --append --groups rstudio-users "${user}" && \
-        mkdir -p "/shared/${user}" && \
-        chown -R "${user}" "/shared/${user}"; \
-    done
+RUN bash -c ' \
+        for i in "${!USERS_ARRAY[@]}"; do \
+            user="${USERS_ARRAY[i]}" && \
+            user_id="${USER_IDS_ARRAY[i]}" && \
+            adduser --disabled-password --gecos "" --uid "${user_id}" --shell /bin/bash "${user}" && \
+            echo "${user}:${DEFAULT_PASSWORD}" | chpasswd && \
+            usermod --append --groups rstudio-users "${user}" && \
+            mkdir -p "/shared/${user}" && \
+            chown -R "${user}" "/shared/${user}"; \
+        done
+    '
 RUN chgrp -R rstudio-users /shared
 RUN chmod -R g+s /shared
 
