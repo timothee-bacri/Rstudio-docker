@@ -39,7 +39,7 @@ RUN bash -c ' \
             usermod --append --groups rstudio-users "${user}" && \
             mkdir -p "/shared/${user}" && \
             chown -R "${user}" "/shared/${user}"; \
-        done
+        done \
     '
 RUN chgrp -R rstudio-users /shared
 RUN chmod -R g+s /shared
