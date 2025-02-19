@@ -59,7 +59,9 @@ RUN apt-get update && \
     # For RRembo, it depends on eaf
     libgsl-dev libglu1-mesa \
     # For dgpsi
-    libtiff-dev libjpeg-dev && \
+    libtiff-dev libjpeg-dev \
+    # For convenience
+    nano && \
     apt-get -y clean && \
     apt-get -y autoremove --purge && \
     rm -rf /var/lib/apt/lists/* /tmp/*
