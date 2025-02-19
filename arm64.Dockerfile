@@ -11,7 +11,10 @@ ARG DGPSI_FOLDER_NAME
 ARG CONDA_ENV_PATH=${CONDA_PATH}/envs/${DGPSI_FOLDER_NAME}
 
 ARG USERS="dw356 ik354 mh1176 trfb201"
+ARG USERS_ARRAY=($USERS)
 ARG USER_IDS="502 505 503 507"
+ARG USER_IDS_ARRAY=($USER_IDS)
+
 ARG DEFAULT_PASSWORD="orchid"
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -63,9 +66,9 @@ RUN rm -f DESCRIPTION*
 RUN addgroup rstudio-users
 
 ## Initialize users
-RUN for i in "${!USERS[@]}"; do \
-        user="${USERS[i]}" && \
-        user_id="${USER_IDS[i]}" && \
+RUN for i in "${!USERS_ARRAY[@]}"; do \
+        user="${USERS_ARRAY[i]}" && \
+        user_id="${USER_IDS_ARRAY[i]}" && \
         adduser --disabled-password --gecos "" --uid "${user_id}" --shell /bin/bash "${user}" && \
         echo "${user}:${DEFAULT_PASSWORD}" | chpasswd && \
         usermod --append --groups rstudio-users "${user}" && \
