@@ -24,6 +24,9 @@ RUN arch=$(uname -p) && \
         exit 1; \
     fi
 
+# Allow users with user id starting from 500 to login
+RUN echo "auth-minimum-user-id=500" | tee -a "/etc/rstudio/rserver.conf"
+
 # Users can read and copy files in /shared
 RUN addgroup rstudio-users
 
