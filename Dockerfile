@@ -99,7 +99,7 @@ RUN Rscript -e "readline<-function(prompt) {return('Y')};dgpsi::init_py()"
 
 # Let users install packages, update package list, search
 RUN mkdir -p /etc/sudoers.d
-RUN echo "User_Alias MYUSERS = ${USERS}" > /etc/sudoers.d/group-rstudio-users
+RUN echo "User_Alias MYUSERS = ${USERS// /,}" > /etc/sudoers.d/group-rstudio-users
 RUN echo "Cmnd_Alias INSTALL = /usr/bin/apt-get install *, /usr/bin/apt install *" >> /etc/sudoers.d/group-rstudio-users
 RUN echo "Cmnd_Alias UPDATE = /usr/bin/apt-get update, /usr/bin/apt update" >> /etc/sudoers.d/group-rstudio-users
 RUN echo "Cmnd_Alias SEARCH = /usr/bin/apt-get search, /usr/bin/apt search" >> /etc/sudoers.d/group-rstudio-users
