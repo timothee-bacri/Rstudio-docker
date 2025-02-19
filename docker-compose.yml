@@ -1,0 +1,44 @@
+services:
+  rstudio:
+    # image: timotheebacri/rstudio:latest-amd64
+    image: timotheebacri/rstudio:latest-arm64
+    container_name: rstudio
+    # environment:
+      # Default user is rstudio
+      # USER: rstudio
+
+      # rstudio's default password is rstudio
+      # PASSWORD: rstudio
+
+      # rstudio's default IDs are 1000:1000
+      # USERID: 1000
+      # GROUPID: 1000
+
+      # Root account is disabled by default
+      # ROOT: false # false,true
+
+      # Default umask is 022
+      # UMASK: # ${UMASK:=022}
+
+      # By default, authentication is mandatory
+      # DISABLE_AUTH: false # false,true
+
+      # By default, shiny is not available
+      # https://github.com/rocker-org/rocker-versioned/blob/master/rstudio/add_shiny.sh
+      # ADD: none # none,shiny
+
+    # Docker uses its own user ID to create files, so avoid mounting /home in read-write
+    volumes:
+      # Make /home folders available in read-only to avoid screwing up folder ownership
+      #- /home:/host_home:ro # Linux
+      #- /Users:/host_home:ro # MacOS
+      
+      # Local folder for /home, on host Docker will manage permission and ownership on its own
+      - ./RStudio/all_home:/home
+
+      # Store new user passwords
+      - rstudio_etc:/etc
+    ports:
+      - 8787:8787
+volumes:
+  - rstudio_etc
