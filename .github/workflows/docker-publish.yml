@@ -34,10 +34,8 @@ jobs:
         include:
           - os: ubuntu-latest
             platform: amd64
-            dockerfile: amd64.Dockerfile
           - os: ubuntu-24.04-arm
             platform: arm64
-            dockerfile: arm64.Dockerfile
     
     runs-on: ${{ matrix.os }}
     permissions:
@@ -93,7 +91,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ${{ matrix.dockerfile }}
+          file: Dockerfile
           push: true
           tags: timotheebacri/rstudio:latest-${{ matrix.platform }}
           #platforms: linux/arm64
