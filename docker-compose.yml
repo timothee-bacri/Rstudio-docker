@@ -31,7 +31,7 @@ services:
     volumes:
       # Make /home folders available in read-only to avoid screwing up folder ownership
       #- /home:/host_home:ro # Linux
-      #- /Users:/host_home:ro # MacOS
+      - /Users:/host_home:ro # MacOS
       
       # Local folder for /home, on host Docker will manage permission and ownership on its own
       - ./RStudio/all_home:/home
