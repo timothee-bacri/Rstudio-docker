@@ -6,13 +6,13 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - "*.Dockerfile"
+      - "Dockerfile"
       - "DESCRIPTION_*"
       - ".github/workflows/docker-publish.yml"
   pull_request:
     branches: [ "main" ]
     paths:
-      - "*.Dockerfile"
+      - "Dockerfile"
       - "DESCRIPTION_*"
       - ".github/workflows/docker-publish.yml"
   workflow_dispatch:
