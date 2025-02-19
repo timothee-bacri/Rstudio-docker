@@ -11,9 +11,7 @@ ARG DGPSI_FOLDER_NAME
 ARG CONDA_ENV_PATH=${CONDA_PATH}/envs/${DGPSI_FOLDER_NAME}
 
 ARG USERS="dw356 ik354 mh1176 trfb201"
-ARG USERS_ARRAY=($USERS)
 ARG USER_IDS="502 505 503 507"
-ARG USER_IDS_ARRAY=($USER_IDS)
 
 ARG DEFAULT_PASSWORD="orchid"
 ARG DEBIAN_FRONTEND=noninteractive
@@ -31,6 +29,8 @@ RUN addgroup rstudio-users
 
 # Initialize users
 RUN bash -c ' \
+        USERS_ARRAY=($USERS); \
+        USER_IDS_ARRAY=($USER_IDS); \
         for i in "${!USERS_ARRAY[@]}"; do \
             user="${USERS_ARRAY[i]}" && \
             user_id="${USER_IDS_ARRAY[i]}" && \
