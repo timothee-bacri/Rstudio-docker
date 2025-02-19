@@ -65,7 +65,7 @@ RUN rm -f DESCRIPTION*
 # Users can read and copy files in /shared
 RUN addgroup rstudio-users
 
-## Initialize users
+# Initialize users
 RUN for i in "${!USERS_ARRAY[@]}"; do \
         user="${USERS_ARRAY[i]}" && \
         user_id="${USER_IDS_ARRAY[i]}" && \
