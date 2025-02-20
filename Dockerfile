@@ -60,7 +60,7 @@ RUN apt-get update && \
     # For dgpsi
     libtiff-dev libjpeg-dev \
     # For convenience
-    nano man-db curl && \
+    nano man-db curl cron && \
     apt-get -y clean && \
     apt-get -y autoremove --purge && \
     rm -rf /var/lib/apt/lists/* /tmp/*
