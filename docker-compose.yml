@@ -35,7 +35,9 @@ services:
       # The user running the container should avoid mounting the same folder many times or it may crash Docker
       - /Users/trfb201/docker/RStudio/home:/host_home/trfb201:ro
       
-      - /Users/dw356:/host_home/dw356:ro
+      # The user running Docker cannot share the Docker folders in their home directory in read-only as it will crash Docker
+      # - /Users/dw356/available_to_rstudio_server:/host_home/dw356:ro
+      
       - /Users/ik354:/host_home/ik354:ro
       - /Users/mh1176:/host_home/mh1176:ro
       - /Users/jm622:/host_home/jm622:ro
