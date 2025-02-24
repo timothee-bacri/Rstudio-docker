@@ -1,7 +1,7 @@
 # RStudio-Server Docker image for Decision-support tools
 
 ## Packages
-Packages are listed in `DESCRIPTION`. This allows to reduce the image size slightly compared to `install.packages` and other methods.
+Packages are listed in `DESCRIPTION_*` files. This allows to reduce the image size slightly compared to `install.packages` and other methods.
 Also has the development versions of https://github.com/mingdeyu/dgpsi-R/ and https://github.com/mbinois/RRembo.
 
 `dgpsi::init_py()` is done in the image to avoid taking time for users.
