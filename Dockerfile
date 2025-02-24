@@ -39,9 +39,7 @@ RUN bash -c ' \
             user_id="${USER_IDS_ARRAY[i]}" && \
             adduser --disabled-password --comment "" --uid "${user_id}" --shell /bin/bash "${user}" && \
             echo "${user}:${DEFAULT_PASSWORD}" | chpasswd && \
-            usermod --append --groups rstudio-users "${user}" && \
-            mkdir -p "/shared/${user}" && \
-            chown -R "${user}" "/shared/${user}"; \
+            usermod --append --groups rstudio-users "${user}" ; \
         done \
     '
 RUN chgrp -R rstudio-users /shared
