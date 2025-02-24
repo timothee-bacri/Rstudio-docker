@@ -27,7 +27,7 @@ RUN arch=$(uname -p) && \
 # Allow users with user id starting from 500 to login
 RUN echo "auth-minimum-user-id=500" | tee -a "/etc/rstudio/rserver.conf"
 
-# Users can read and copy files in /shared
+# Users can run some apt commands
 RUN addgroup rstudio-users
 
 # Initialize users
@@ -42,8 +42,6 @@ RUN bash -c ' \
             usermod --append --groups rstudio-users "${user}" ; \
         done \
     '
-RUN chgrp -R rstudio-users /shared
-RUN chmod -R g+s /shared
 
 RUN apt-get update && \
     apt-get -y upgrade && \
