@@ -56,7 +56,7 @@ RUN apt-get update && \
     # For dgpsi
     libtiff-dev libjpeg-dev \
     # For gifsky
-    cargo \
+    cargo xz-utils \
     # For convenience
     nano man-db curl cron && \
     apt-get -y clean && \
