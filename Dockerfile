@@ -59,6 +59,8 @@ RUN apt-get update && \
     libgsl-dev libglu1-mesa \
     # For dgpsi
     libtiff-dev libjpeg-dev \
+    # For gifsky
+    cargo \
     # For convenience
     nano man-db curl cron && \
     apt-get -y clean && \
