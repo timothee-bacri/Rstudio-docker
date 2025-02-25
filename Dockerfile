@@ -58,7 +58,9 @@ RUN apt-get update && \
     # For gifsky
     cargo xz-utils \
     # For convenience
-    nano man-db curl cron finger && \
+    nano man-db curl cron finger \
+    # Generate SSH key for usage with git
+    openssh-client && \
     apt-get -y clean && \
     apt-get -y autoremove --purge && \
     rm -rf /var/lib/apt/lists/* /tmp/*
