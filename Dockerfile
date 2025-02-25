@@ -59,6 +59,8 @@ RUN apt-get update && \
     cargo xz-utils \
     # For convenience
     nano man-db curl cron finger \
+    # For backend (plumber package)
+    libsodium-dev \
     # Generate SSH key for usage with git
     openssh-client && \
     apt-get -y clean && \
