@@ -1,6 +1,6 @@
 FROM rocker/rstudio:latest
 
-LABEL org.opencontainers.image.source https://github.com/timothee-bacri/Rstudio-docker
+LABEL org.opencontainers.image.source=https://github.com/timothee-bacri/Rstudio-docker
 
 ARG CONDA_PATH=/shared/miniconda
 
