@@ -2,6 +2,10 @@ FROM rocker/rstudio:latest
 
 LABEL org.opencontainers.image.source=https://github.com/timothee-bacri/Rstudio-docker
 
+RUN uname -m
+RUN uname -p
+RUN uname -a
+
 ARG CONDA_PATH=/shared/miniconda
 
 # Set dgpsi path version, BUILD ARG
