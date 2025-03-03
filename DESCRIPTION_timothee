@@ -59,7 +59,9 @@ Imports:
   pkgload,
   devtools,
   plumber,
-  ggthemes
+  ggthemes,
+  mime,
+  curl
 Remotes:
   https://github.com/mingdeyu/dgpsi-R.git,
   https://github.com/mbinois/RRembo.git
