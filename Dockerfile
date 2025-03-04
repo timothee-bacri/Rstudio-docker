@@ -20,14 +20,6 @@ ARG USER_IDS="502 505 503 507 504 506"
 ARG DEFAULT_PASSWORD="orchid"
 ARG DEBIAN_FRONTEND=noninteractive
 
-# Miniconda only supports s390x and x86_64 (amd64) and aarch64 (arm64)
-# But rocker:rstudio only supports amd64 and arm64
-RUN arch=$(uname -p) && \
-    if [ "$arch" != "x86_64" -a "$arch" != "aarch64" ]; then \
-        echo "Unsupported architecture: $arch"; \
-        exit 1; \
-    fi
-
 # Allow users with user id starting from 500 to login
 RUN echo "auth-minimum-user-id=500" | tee -a "/etc/rstudio/rserver.conf"
 
@@ -72,6 +64,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* /tmp/*
 
 # Miniconda https://docs.anaconda.com/miniconda/
+# Miniconda only supports s390x and x86_64 (amd64) and aarch64 (arm64)
+# But rocker:rstudio only supports amd64 and arm64
 RUN mkdir -p "${CONDA_PATH}"
 RUN arch=$(uname -p) && \
     wget "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${arch}.sh" -O "${CONDA_PATH}/miniconda.sh" && \
