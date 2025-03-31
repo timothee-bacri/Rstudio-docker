@@ -61,6 +61,10 @@ RUN apt-get update && \
     libgl1-mesa-dev libglu1-mesa-dev \
     # For elliptic (dependency)
     pari-gp \
+    # For sf, terra
+    gdal-bin \
+    # For keyring (dependency)
+    libsecret-1-dev  
     # Generate SSH key for usage with git
     openssh-client && \
     apt-get -y clean && \
