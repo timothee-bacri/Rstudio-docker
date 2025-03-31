@@ -8,12 +8,14 @@ on:
     paths:
       - "Dockerfile"
       - "DESCRIPTION_*"
+      - "install_packages_*"
       - ".github/workflows/docker-publish.yml"
   pull_request:
     branches: [ "main" ]
     paths:
       - "Dockerfile"
       - "DESCRIPTION_*"
+      - "install_packages_*"
       - ".github/workflows/docker-publish.yml"
   workflow_dispatch:
 
