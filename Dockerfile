@@ -64,7 +64,7 @@ RUN apt-get update && \
     # For sf, terra
     gdal-bin \
     # For keyring (dependency)
-    libsecret-1-dev  
+    libsecret-1-dev \
     # Generate SSH key for usage with git
     openssh-client && \
     apt-get -y clean && \
