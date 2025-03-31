@@ -73,7 +73,7 @@ packages <- c("adaptMCMC",
 to_install <- sapply(packages, function(x) {
   return(system.file(package = x) == ""))
 })
-if (length(packages[to_install] > 0)) {
+if (any(to_install)) {
   pak::pkg_install(packages[to_install],
                    ask = FALSE,
                    upgrade = FALSE)
