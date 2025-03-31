@@ -3,6 +3,7 @@ Imports:
   gganimate,
   gifski,
   lubridate,
+  magick,
   mesoclim,
   mesoclimAddTrees,
   sf,
