@@ -1,4 +1,8 @@
-packages <- c("arrow",
+if (isFALSE(exists("packages")) {
+  packages <- c()
+}
+packages <- c(packages,
+              "arrow",
               "BASS",
               "colorspace",
               "comprehenr",
@@ -59,11 +63,3 @@ packages <- c("arrow",
               "usethis",
               "viridis",
               "writexl")
-to_install <- sapply(packages, function(x) {
-  return(system.file(package = x) == "")
-})
-if (any(to_install)) {
-  pak::pkg_install(packages[to_install],
-                   ask = FALSE,
-                   upgrade = FALSE)
-}
