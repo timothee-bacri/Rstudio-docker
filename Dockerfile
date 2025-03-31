@@ -98,6 +98,10 @@ ENV RETICULATE_CONDA="${CONDA_PATH}/bin/conda"
 # Initialize dgpsi, and say yes to all prompts
 RUN Rscript -e "readline<-function(prompt) {return('Y')};dgpsi::init_py()"
 
+# Downscaling uses all the magick disk cache -> increase it
+# https://stackoverflow.com/questions/31407010/cache-resources-exhausted-imagemagick
+RUN sed -E -i 's|  <policy domain="resource" name="disk" value="[0-9]GiB"/>|  <policy domain="resource" name="disk" value="5GiB"/>|' /etc/ImageMagick-6/policy.xml
+
 # Let users install packages, update package list, search
 RUN mkdir -p /etc/sudoers.d
 RUN bash -c 'echo "User_Alias MYUSERS = ${USERS// /,}" | tee /etc/sudoers.d/group-rstudio-users'
