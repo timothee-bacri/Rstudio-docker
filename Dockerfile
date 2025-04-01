@@ -89,6 +89,11 @@ RUN date +%Y-%m && \
     rm -rf /tmp/*
 RUN rm -f pak_packages_*.R
 
+# Downscaling uses all the magick disk cache -> increase it
+# https://stackoverflow.com/questions/31407010/cache-resources-exhausted-imagemagick
+RUN sed -E -i 's|  <policy domain="resource" name="disk" value="[0-9]GiB"/>|  <policy domain="resource" name="disk" value="8GiB"/>|' /etc/ImageMagick-*/policy.xml
+RUN grep '  <policy domain="resource" name="disk" value=' /etc/ImageMagick-*/policy.xml
+
 # Make conda command available to all
 ARG PATH_DOLLAR='$PATH' # do not interpolate $PATH, this is meant to update path in .bashrc
 ARG COMMAND_EXPORT_PATH_BASHRC="export PATH=\"${CONDA_PATH}/bin:${PATH_DOLLAR}\""
@@ -101,10 +106,6 @@ ENV RETICULATE_CONDA="${CONDA_PATH}/bin/conda"
 
 # Initialize dgpsi, and say yes to all prompts
 RUN Rscript -e "readline<-function(prompt) {return('Y')};dgpsi::init_py()"
-
-# Downscaling uses all the magick disk cache -> increase it
-# https://stackoverflow.com/questions/31407010/cache-resources-exhausted-imagemagick
-RUN sed -E -i 's|  <policy domain="resource" name="disk" value="[0-9]GiB"/>|  <policy domain="resource" name="disk" value="5GiB"/>|' /etc/ImageMagick-*/policy.xml
 
 # Let users install packages, update package list, search
 RUN mkdir -p /etc/sudoers.d
