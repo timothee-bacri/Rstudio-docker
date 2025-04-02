@@ -4,19 +4,21 @@ on:
   schedule:
     - cron: '0 0 * * MON'
   push:
-    branches: [ "main" ]
+    branches:
+      - main
     paths:
-      - "Dockerfile"
-      # - "DESCRIPTION_*"
-      - "pak_packages_*.R"
       - ".github/workflows/docker-publish.yml"
+      - "Dockerfile"
+      - "DESCRIPTION_*"
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
     paths:
-      - "Dockerfile"
-      # - "DESCRIPTION_*"
-      - "pak_packages_*.R"
       - ".github/workflows/docker-publish.yml"
+      - "Dockerfile"
+      - "DESCRIPTION_*"
+    types:
+      - closed
   workflow_dispatch:
 
 env:
