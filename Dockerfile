@@ -78,7 +78,7 @@ RUN apt-get update && \
 # But rocker:rstudio only supports amd64 and arm64
 RUN mkdir -p "${CONDA_PATH}"
 RUN arch=$(uname -p) && \
-    wget "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${arch}.sh" -O "${CONDA_PATH}/miniconda.sh" && \
+    wget --no-verbose "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${arch}.sh" -O "${CONDA_PATH}/miniconda.sh" && \
     bash "${CONDA_PATH}/miniconda.sh" -b -u -p "${CONDA_PATH}" && \
     rm -f "${CONDA_PATH}/miniconda.sh"
 
