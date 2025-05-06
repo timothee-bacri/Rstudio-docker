@@ -78,7 +78,7 @@ RUN apt-get update && \
 # But rocker:rstudio only supports amd64 and arm64
 RUN mkdir -p "${CONDA_PATH}"
 RUN arch=$(uname -p) && \
-    wget --no-verbose "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${arch}.sh" -O "${CONDA_PATH}/miniconda.sh" && \
+    wget "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${arch}.sh" -O "${CONDA_PATH}/miniconda.sh" && \
     bash "${CONDA_PATH}/miniconda.sh" -b -u -p "${CONDA_PATH}" && \
     rm -f "${CONDA_PATH}/miniconda.sh"
 
@@ -88,6 +88,7 @@ RUN date +%Y-%m && \
     Rscript -e "install.packages('pak')" && \
     Rscript -e "pak::pkg_install('github::mingdeyu/dgpsi-R')" && \
     for description_file in DESCRIPTION_*; do \
+        echo "$description_file" && \
         cp $description_file DESCRIPTION && \
         Rscript -e "pak::local_install_dev_deps(upgrade = TRUE)"; \
     done && \
