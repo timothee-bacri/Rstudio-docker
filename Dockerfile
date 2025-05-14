@@ -101,6 +101,9 @@ ARG COMMAND_EXPORT_PATH_BASHRC="export PATH=\"${CONDA_PATH}/bin:${PATH_DOLLAR}\"
 # $COMMAND_EXPORT_PATH_BASHRC contains: export PATH="<conda_path>/bin:$PATH"
 RUN echo "${COMMAND_EXPORT_PATH_BASHRC}" | tee -a "/etc/bash.bashrc"
 
+# Timezone for all users
+RUN echo "${TZ}" | tee -a /etc/environment
+
 # Tell all R sessions about it (see details in reticulate:::find_conda())
 RUN echo "options(reticulate.conda_binary = '${CONDA_PATH}/bin/conda')" | tee -a "$R_HOME/etc/Rprofile.site"
 ENV RETICULATE_CONDA="${CONDA_PATH}/bin/conda"
