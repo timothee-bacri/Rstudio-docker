@@ -37,8 +37,10 @@ RUN bash -c ' \
 
 RUN apt-get update && \
     apt-get -y --no-install-recommends install \
+    # To download files
+    wget \
     libcurl4-openssl-dev \
-    # packages (devtools, dgpsi)
+    # For devtools and dgpsi
     libfontconfig1-dev libxml2-dev libudunits2-dev libssl-dev libproj-dev cmake libgdal-dev libharfbuzz-dev libfribidi-dev \
     # Specific to arm64
     libgit2-dev \
@@ -51,18 +53,18 @@ RUN apt-get update && \
     # For gifsky
     cargo xz-utils \
     # For convenience
-    nano man-db curl cron finger bind9-dnsutils htop \
+    nano man-db curl cron finger bind9-dnsutils \
     # For backend (plumber package)
     libsodium-dev \
     # For magick (downscaling)
     libmagick++-dev gsfonts \
     # For rgl (dependency)
     libgl1-mesa-dev libglu1-mesa-dev \
-    # For elliptic (dependency)
+    # For elliptic
     pari-gp \
     # For sf, terra
     gdal-bin \
-    # For keyring (dependency)
+    # For keyring
     libsecret-1-dev \
     # For knitr, markdown
     pandoc \
