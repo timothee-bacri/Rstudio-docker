@@ -1,0 +1,9 @@
+Package: randomname
+Version: 0.1
+Imports:
+  dgpsi,
+  DiceOptim,
+  shiny
+Remotes:
+	dgpsi=git::https://github.com/mingdeyu/dgpsi-R.git,
+	DiceOptim=url::https://cran.r-project.org/src/contrib/Archive/DiceOptim/DiceOptim_2.1.1.tar.gz
