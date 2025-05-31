@@ -123,15 +123,15 @@ DEFAULT_PASSWORD="orchid"
 USERS_ARRAY=($USERS)
 USER_IDS_ARRAY=($USER_IDS)
 
-for i in "${!USERS_ARRAY[@]}"; do
-  user="${USERS_ARRAY[i]}"
-  user_id="${USER_IDS_ARRAY[i]}"
+for i in "${!USERS_ARRAY[@]}"; do \
+  user="${USERS_ARRAY[i]}"; \
+  user_id="${USER_IDS_ARRAY[i]}"; \
   # Add user only if not already available
-  if ! id "${user}" &>/dev/null; then
-    adduser --disabled-password --comment "" --uid "${user_id}" --shell /bin/bash "${user}"
-    echo "${user}:${DEFAULT_PASSWORD}" | chpasswd
-    usermod --append --groups rstudio-users "${user}"
-  fi
+  if ! id "${user}" &>/dev/null; then \
+    adduser --disabled-password --comment "" --uid "${user_id}" --shell /bin/bash "${user}"; \
+    echo "${user}:${DEFAULT_PASSWORD}" | chpasswd; \
+    usermod --append --groups rstudio-users "${user}"; \
+  fi \
 done
 EOT
 CMD ["bash", "-c", "cmd.bash && /init"]
