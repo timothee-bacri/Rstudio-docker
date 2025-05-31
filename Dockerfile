@@ -13,7 +13,6 @@ ARG CONDA_ENV_PATH=${CONDA_PATH}/envs/${DGPSI_FOLDER_NAME}
 ARG USERS="dw356 ik354 mh1176 trfb201 jm622 mcm216 hc629"
 ARG USER_IDS="502 505 503 507 504 506 508"
 
-ARG DEFAULT_PASSWORD="orchid"
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Allow users with user id starting from 500 to login
@@ -21,19 +20,6 @@ RUN echo "auth-minimum-user-id=500" | tee -a "/etc/rstudio/rserver.conf"
 
 # Users can run some apt commands
 RUN addgroup rstudio-users
-
-# Initialize users
-RUN bash -c ' \
-        USERS_ARRAY=($USERS); \
-        USER_IDS_ARRAY=($USER_IDS); \
-        for i in "${!USERS_ARRAY[@]}"; do \
-            user="${USERS_ARRAY[i]}" && \
-            user_id="${USER_IDS_ARRAY[i]}" && \
-            adduser --disabled-password --comment "" --uid "${user_id}" --shell /bin/bash "${user}" && \
-            echo "${user}:${DEFAULT_PASSWORD}" | chpasswd && \
-            usermod --append --groups rstudio-users "${user}" ; \
-        done \
-    '
 
 RUN apt-get update && \
     apt-get -y --no-install-recommends install \
@@ -126,3 +112,26 @@ RUN echo "Cmnd_Alias INSTALL = /usr/bin/apt-get install *, /usr/bin/apt install 
 RUN echo "Cmnd_Alias UPDATE = /usr/bin/apt-get update, /usr/bin/apt update" >> /etc/sudoers.d/group-rstudio-users
 RUN echo "Cmnd_Alias SEARCH = /usr/bin/apt-get search, /usr/bin/apt search" >> /etc/sudoers.d/group-rstudio-users
 RUN echo "MYUSERS ALL = INSTALL, UPDATE, SEARCH" >> /etc/sudoers.d/group-rstudio-users
+
+# Create users if needed, at runtime
+# Run plumber in Exec form (https://docs.docker.com/reference/build-checks/json-args-recommended/)
+COPY --chmod=750 <<EOT /cmd.bash
+#!/usr/bin/env bash
+USERS="dw356 ik354 mh1176 trfb201 jm622 mcm216 hc629"
+USER_IDS="502 505 503 507 504 506 508"
+DEFAULT_PASSWORD="orchid"
+USERS_ARRAY=($USERS)
+USER_IDS_ARRAY=($USER_IDS)
+
+for i in "${!USERS_ARRAY[@]}"; do
+  user="${USERS_ARRAY[i]}"
+  user_id="${USER_IDS_ARRAY[i]}"
+  # Add user only if not already available
+  if ! id "${user}" &>/dev/null; then
+    adduser --disabled-password --comment "" --uid "${user_id}" --shell /bin/bash "${user}"
+    echo "${user}:${DEFAULT_PASSWORD}" | chpasswd
+    usermod --append --groups rstudio-users "${user}"
+  fi
+done
+EOT
+CMD ["bash", "-c", "cmd.bash && /init"]
