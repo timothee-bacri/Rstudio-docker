@@ -62,10 +62,9 @@ RUN apt-get update && \
 # Miniconda only supports s390x and x86_64 (amd64) and aarch64 (arm64)
 # But rocker:rstudio only supports amd64 and arm64
 RUN mkdir -p "${CONDA_PATH}"
-RUN arch=$(uname -p) && \
-    wget "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${arch}.sh" -O "${CONDA_PATH}/miniconda.sh" && \
-    bash "${CONDA_PATH}/miniconda.sh" -b -u -p "${CONDA_PATH}" && \
-    rm -f "${CONDA_PATH}/miniconda.sh"
+RUN arch=$(uname -m) && wget "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${arch}.sh" -O "${CONDA_PATH}/miniconda.sh"
+RUN bash "${CONDA_PATH}/miniconda.sh" -b -u -p "${CONDA_PATH}"
+RUN rm -f "${CONDA_PATH}/miniconda.sh"
 
 COPY DESCRIPTION_* .
 # Packages update once in a while. We (arbitrarily) update them by invalidating the cache monthly by updating DESCRIPTION
