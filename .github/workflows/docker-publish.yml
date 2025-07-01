@@ -10,6 +10,7 @@ on:
       - ".github/workflows/docker-publish.yml"
       - "Dockerfile"
       - "DESCRIPTION_*"
+      - "docker_startup_manage_users.bash"
   pull_request:
     branches:
       - main
