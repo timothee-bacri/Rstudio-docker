@@ -23,7 +23,7 @@ done
 # Let users install packages, update package list, search
 SUDOERS_FILE="/etc/sudoers.d/group-rstudio-users"
 mkdir -p /etc/sudoers.d
-bash -c 'echo "User_Alias MYUSERS = ${USERS// /,}" | tee "${SUDOERS_FILE}"'
+echo "User_Alias MYUSERS = ${USERS// /,}" > "${SUDOERS_FILE}"
 echo "Cmnd_Alias INSTALL = /usr/bin/apt-get install *, /usr/bin/apt install *" >> "${SUDOERS_FILE}"
 echo "Cmnd_Alias UPDATE = /usr/bin/apt-get update, /usr/bin/apt update" >> "${SUDOERS_FILE}"
 echo "Cmnd_Alias SEARCH = /usr/bin/apt-get search, /usr/bin/apt search" >> "${SUDOERS_FILE}"
