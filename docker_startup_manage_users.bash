@@ -21,10 +21,11 @@ for i in "${!USERS_ARRAY[@]}"; do
 done
 
 # Let users install packages, update package list, search
+# https://unix.stackexchange.com/questions/690749/how-to-enable-sudo-privileges-for-user-group-to-apt-get-install-anything
 SUDOERS_FILE="/etc/sudoers.d/group-rstudio-users"
 mkdir -p /etc/sudoers.d
 echo "User_Alias MYUSERS = ${USERS// /,}" > "${SUDOERS_FILE}"
-echo "Cmnd_Alias INSTALL = /usr/bin/apt-get install, /usr/bin/apt install" >> "${SUDOERS_FILE}"
+echo "Cmnd_Alias INSTALL = /usr/bin/apt-get install *, /usr/bin/apt install *" >> "${SUDOERS_FILE}"
 echo "Cmnd_Alias UPDATE = /usr/bin/apt-get update, /usr/bin/apt update" >> "${SUDOERS_FILE}"
-echo "Cmnd_Alias SEARCH = /usr/bin/apt-get search, /usr/bin/apt search" >> "${SUDOERS_FILE}"
+echo "Cmnd_Alias SEARCH = /usr/bin/apt-get search *, /usr/bin/apt search *" >> "${SUDOERS_FILE}"
 echo "MYUSERS ALL = INSTALL, UPDATE, SEARCH" >> "${SUDOERS_FILE}"
