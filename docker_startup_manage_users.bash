@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-USERS="dw356 ik354 mh1176 trfb201 jm622 mcm216 hc629 cassandrabird jmose"
-USER_IDS="502 505 503 507 504 506 508 509 510"
+USERS="dw356 ik354 mh1176 trfb201 jm622 mcm216 hc629 cassandrabird jmose batistahpedro"
+USER_IDS="502 505 503 507 504 506 508 509 510 511"
 DEFAULT_PASSWORD="orchid"
 USERS_ARRAY=($USERS)
 USER_IDS_ARRAY=($USER_IDS)
