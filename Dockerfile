@@ -16,6 +16,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN echo "auth-minimum-user-id=500" | tee -a "/etc/rstudio/rserver.conf"
 
 # Allow GitHub Copilot integration (c.f. https://github.com/rocker-org/rocker-versioned2/issues/826)
+# c.f. https://docs.posit.co/ide/user/ide/guide/tools/copilot.html#setup
 RUN echo "copilot-enabled=1" | tee -a "/etc/rstudio/rserver.conf"
 
 # Users can run some apt commands
