@@ -15,6 +15,9 @@ ARG DEBIAN_FRONTEND=noninteractive
 # Allow users with user id starting from 500 to login
 RUN echo "auth-minimum-user-id=500" | tee -a "/etc/rstudio/rserver.conf"
 
+# Allow GitHub Copilot integration (c.f. https://github.com/rocker-org/rocker-versioned2/issues/826)
+RUN echo "copilot-enabled=1" | tee -a "/etc/rstudio/rserver.conf"
+
 # Users can run some apt commands
 RUN addgroup rstudio-users
 
