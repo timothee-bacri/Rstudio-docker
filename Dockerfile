@@ -17,7 +17,8 @@ RUN echo "auth-minimum-user-id=500" | tee -a "/etc/rstudio/rserver.conf"
 
 # Allow GitHub Copilot integration (c.f. https://github.com/rocker-org/rocker-versioned2/issues/826)
 # c.f. https://docs.posit.co/ide/user/ide/guide/tools/copilot.html#setup
-RUN echo "copilot-enabled=1" | tee -a "/etc/rstudio/rserver.conf"
+#RUN echo "copilot-enabled=1" | tee -a "/etc/rstudio/rserver.conf"
+# Don't do it yet, it crashes with error "Error reading /etc/rstudio/rserver.conf: unrecognised option 'copilot-enabled'"
 
 # Users can run some apt commands
 RUN addgroup rstudio-users
