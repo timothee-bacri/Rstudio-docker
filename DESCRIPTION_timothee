@@ -67,6 +67,7 @@ Imports:
 	shinyjs,
 	shinyWidgets,
 	sp,
+	spacetime,
 	testthat,
 	tidyverse,
 	truncnorm,
@@ -79,3 +80,4 @@ Remotes:
 	dgpsi=git::https://github.com/mingdeyu/dgpsi-R.git,
 	RRembo=git::https://github.com/mbinois/RRembo.git,
 	DiceOptim=url::https://cran.r-project.org/src/contrib/Archive/DiceOptim/DiceOptim_2.1.1.tar.gz
+
