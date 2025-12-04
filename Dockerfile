@@ -18,7 +18,6 @@ RUN echo "auth-minimum-user-id=500" | tee -a "/etc/rstudio/rserver.conf"
 # Allow GitHub Copilot integration (c.f. https://github.com/rocker-org/rocker-versioned2/issues/826)
 # c.f. https://docs.posit.co/ide/user/ide/guide/tools/copilot.html#setup
 RUN echo "copilot-enabled=1" | tee -a /etc/rstudio/rsession.conf
-RUN cat /etc/rstudio/rsession.conf
 
 # Users can run some apt commands
 RUN addgroup rstudio-users
@@ -63,8 +62,6 @@ RUN apt-get update && \
     apt-get -y autoremove --purge && \
     rm -rf /var/lib/apt/lists/* /tmp/*
 
-RUN cat /etc/rstudio/rsession.conf
-
 # Miniconda https://docs.anaconda.com/miniconda/
 # Miniconda only supports s390x and x86_64 (amd64) and aarch64 (arm64)
 # But rocker:rstudio only supports amd64 and arm64
@@ -72,8 +69,6 @@ RUN mkdir -p "${CONDA_PATH}"
 RUN arch=$(uname -m) && wget "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${arch}.sh" -O "${CONDA_PATH}/miniconda.sh"
 RUN bash "${CONDA_PATH}/miniconda.sh" -b -u -p "${CONDA_PATH}"
 RUN rm -f "${CONDA_PATH}/miniconda.sh"
-
-RUN cat /etc/rstudio/rsession.conf
 
 COPY DESCRIPTION_* .
 # Packages update once in a while. We (arbitrarily) update them by invalidating the cache monthly by updating DESCRIPTION
@@ -96,8 +91,6 @@ ARG COMMAND_EXPORT_PATH_BASHRC="export PATH=\"${CONDA_PATH}/bin:${PATH_DOLLAR}\"
 # $COMMAND_EXPORT_PATH_BASHRC contains: export PATH="<conda_path>/bin:$PATH"
 RUN echo "${COMMAND_EXPORT_PATH_BASHRC}" | tee -a "/etc/bash.bashrc"
 
-RUN cat /etc/rstudio/rsession.conf
-
 # Timezone for all users
 RUN echo "${TZ}" | tee -a /etc/environment
 
@@ -105,12 +98,8 @@ RUN echo "${TZ}" | tee -a /etc/environment
 RUN echo "options(reticulate.conda_binary = '${CONDA_PATH}/bin/conda')" | tee -a "$R_HOME/etc/Rprofile.site"
 ENV RETICULATE_CONDA="${CONDA_PATH}/bin/conda"
 
-RUN cat /etc/rstudio/rsession.conf
-
 # Initialize dgpsi, and say yes to all prompts
 RUN Rscript -e "readline<-function(prompt) {return('Y')};dgpsi::init_py()"
-
-RUN cat /etc/rstudio/rsession.conf
 
 # Downscaling uses all the magick disk cache -> increase it
 # This seems to not work when done before dgpsi::init_py()
@@ -118,12 +107,8 @@ RUN cat /etc/rstudio/rsession.conf
 RUN sed -E -i 's|  <policy domain="resource" name="disk" value="[0-9]GiB"/>|  <policy domain="resource" name="disk" value="8GiB"/>|' /etc/ImageMagick-*/policy.xml
 RUN grep '  <policy domain="resource" name="disk" value=' /etc/ImageMagick-*/policy.xml
 
-RUN cat /etc/rstudio/rsession.conf
-
 # Create users if needed, at runtime
 # Run plumber in Exec form (https://docs.docker.com/reference/build-checks/json-args-recommended/)
 COPY --chmod=110 docker_startup_manage_users.bash /docker_startup_manage_users.bash
-
-RUN cat /etc/rstudio/rsession.conf
 
 CMD ["bash", "-c", "/docker_startup_manage_users.bash && /init"]
