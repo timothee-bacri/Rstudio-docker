@@ -55,7 +55,7 @@ jobs:
       - name: Set dgpsi folder name
         run: |
           name=`curl -sSL https://raw.githubusercontent.com/mingdeyu/dgpsi-R/refs/heads/master/R/initi_py.R | grep -B 100 "dgpsi_ver=='dev'" | grep 'env_name *<-' | grep --invert-match '^\s*#' | grep --only-matching --perl-regexp 'dgp.*\d'`
-          echo "DGPSI_FOLDER_NAME=${name}" >> $GITHUB_ENV
+          echo "DGPSI_FOLDER_NAME=${name}" | tee -a $GITHUB_ENV
       
       #- name: Cache R packages
       #  uses: actions/cache@v4
