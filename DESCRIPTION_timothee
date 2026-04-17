@@ -67,7 +67,6 @@ Imports:
 	shinyjs,
 	shinyWidgets,
 	sp,
-	spacetime,
 	testthat,
 	tidyverse,
 	truncnorm,
