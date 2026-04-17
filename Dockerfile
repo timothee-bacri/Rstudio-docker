@@ -25,8 +25,7 @@ RUN addgroup rstudio-users
 RUN apt-get update && \
     apt-get -y --no-install-recommends install \
     # To download files
-    wget \
-    libcurl4-openssl-dev \
+    wget libcurl4-openssl-dev \
     # For devtools and dgpsi
     libfontconfig1-dev libxml2-dev libudunits2-dev libssl-dev libproj-dev cmake libgdal-dev libharfbuzz-dev libfribidi-dev \
     # Specific to arm64
@@ -55,6 +54,8 @@ RUN apt-get update && \
     libsecret-1-dev \
     # For knitr, markdown
     pandoc \
+    # For fs package (necessary for some other package)
+    libuv1-dev \
     # Generate SSH key for usage with git
     openssh-client && \
     apt-get -y upgrade && \
