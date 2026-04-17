@@ -8,7 +8,14 @@ Imports:
   magick,
   sf,
   terra,
+  tidyr,
+  spacetime,
+  mesoclim,
+  mesoclimAddTrees,
   tidyr
+Remotes:
+  mesoclim=git::https://github.com/ilyamaclean/mesoclim.git,
+  mesoclimAddTrees=git::https://github.com/jrmosedale/mesoclimAddTrees.git
 Comment:
   Once https://github.com/jrmosedale/mesoclimAddTrees/pull/1 and https://github.com/ilyamaclean/mesoclim/pull/3 are merged, replace https://github.com/timothee-bacri/mesoclimAddTrees.git with https://github.com/jrmosedale/mesoclimAddTrees.git, and https://github.com/timothee-bacri/mesoclim.git with https://github.com/ilyamaclean/mesoclim.git
 Not_Imports_anymore:
