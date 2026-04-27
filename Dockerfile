@@ -39,7 +39,7 @@ RUN apt-get update && \
     # For gifsky
     cargo xz-utils \
     # For convenience
-    nano man-db curl cron finger bind9-dnsutils htop \
+    nano man-db curl cron finger bind9-dnsutils htop tree \
     # For backend (plumber package)
     libsodium-dev \
     # For magick (downscaling)
