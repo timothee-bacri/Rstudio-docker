@@ -2,13 +2,16 @@ FROM rocker/rstudio:latest
 
 LABEL org.opencontainers.image.source=https://github.com/timothee-bacri/Rstudio-docker
 
-ARG CONDA_PATH=/shared/miniconda
+ARG MINIFORGE_PATH=/shared/miniforge
 
 # Set dgpsi path version, BUILD ARG
-# curl -sSL https://raw.githubusercontent.com/mingdeyu/dgpsi-R/refs/heads/master/R/initi_py.R | grep "env_name *<-" | grep --invert-match "^\s*#" | grep --only-matching --perl-regexp 'dgp.*\d'
+# curl -sSL https://raw.githubusercontent.com/mingdeyu/dgpsi-R/refs/heads/master/R/initi_py.R | \
+#            sed --silent '/devel/,$p' | \
+#            grep --max-count 1 --only-matching --perl-regexp '^((?!#).)*env_name.*$' | \
+#            grep --only-matching "['\"].*['\"]" | \
+#            tr --delete "'" | tr --delete '"'
 ARG DGPSI_FOLDER_NAME
-
-ARG CONDA_ENV_PATH=${CONDA_PATH}/envs/${DGPSI_FOLDER_NAME}
+# ARG CONDA_ENV_PATH=${CONDA_PATH}/envs/${DGPSI_FOLDER_NAME}
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -63,18 +66,20 @@ RUN apt-get update && \
     apt-get -y autoremove --purge && \
     rm -rf /var/lib/apt/lists/* /tmp/*
 
-# Miniconda https://docs.anaconda.com/miniconda/
-# Miniconda only supports s390x and x86_64 (amd64) and aarch64 (arm64)
+## Miniconda only supports s390x and x86_64 (amd64) and aarch64 (arm64)
+# Miniforge only supports ppc64le and x86_64 (amd64) and aarch64 (arm64)
 # But rocker:rstudio only supports amd64 and arm64
-RUN mkdir -p "${CONDA_PATH}"
-RUN arch=$(uname -m) && wget "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${arch}.sh" -O "${CONDA_PATH}/miniconda.sh"
-RUN bash "${CONDA_PATH}/miniconda.sh" -b -u -p "${CONDA_PATH}"
-RUN rm -f "${CONDA_PATH}/miniconda.sh"
+# Miniforge is now the default used by dgpsi (https://github.com/conda-forge/miniforge#unix-like-platforms-macos-linux--wsl)
+RUN mkdir "/shared"
+RUN wget "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" -O "/tmp/miniforge.sh"
+RUN bash "/tmp/miniforge.sh" -b -p "${MINIFORGE_PATH}"
+RUN rm -f "/tmp/miniforge.sh"
+# source is only available in bash, not sh. Alternative: `. ${MINIFORGE_PATH}/etc/profile.d/conda.sh`
+RUN ["/bin/bash", "-c", "source ${MINIFORGE_PATH}/etc/profile.d/conda.sh"]
 
 COPY DESCRIPTION_* .
 # Packages update once in a while. We (arbitrarily) update them by invalidating the cache monthly by updating DESCRIPTION
-RUN date +%Y-%m && \
-    Rscript -e "install.packages('pak')" && \
+RUN Rscript -e "install.packages('pak')" && \
     # Rscript -e "pak::pkg_install('github::mingdeyu/dgpsi-R')" && \
     for description_file in DESCRIPTION_*; do \
         echo "NOW WORKING WITH THE DESCRIPTION FILE WITH NAME $description_file" && \
@@ -88,16 +93,16 @@ RUN cat /etc/rstudio/rsession.conf
 
 # Make conda command available to all
 ARG PATH_DOLLAR='$PATH' # do not interpolate $PATH, this is meant to update path in .bashrc
-ARG COMMAND_EXPORT_PATH_BASHRC="export PATH=\"${CONDA_PATH}/bin:${PATH_DOLLAR}\""
-# $COMMAND_EXPORT_PATH_BASHRC contains: export PATH="<conda_path>/bin:$PATH"
+ARG COMMAND_EXPORT_PATH_BASHRC="export PATH=\"${MINIFORGE_PATH}/bin:${PATH_DOLLAR}\""
+# $COMMAND_EXPORT_PATH_BASHRC contains: export PATH="<MINIFORGE_PATH>/bin:$PATH"
 RUN echo "${COMMAND_EXPORT_PATH_BASHRC}" | tee -a "/etc/bash.bashrc"
 
 # Timezone for all users
 RUN echo "${TZ}" | tee -a /etc/environment
 
 # Tell all R sessions about it (see details in reticulate:::find_conda())
-RUN echo "options(reticulate.conda_binary = '${CONDA_PATH}/bin/conda')" | tee -a "$R_HOME/etc/Rprofile.site"
-ENV RETICULATE_CONDA="${CONDA_PATH}/bin/conda"
+RUN echo "options(reticulate.conda_binary = '${MINIFORGE_PATH}/bin/conda')" | tee -a "$R_HOME/etc/Rprofile.site"
+ENV RETICULATE_CONDA="${MINIFORGE_PATH}/bin/conda"
 
 # Initialize dgpsi, and say yes to all prompts
 RUN Rscript -e "readline<-function(prompt) {return('Y')};dgpsi::init_py()"
