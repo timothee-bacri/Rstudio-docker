@@ -108,7 +108,7 @@ RUN echo "export R_LD_LIBRARY_PATH=\"${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}
 RUN echo "${TZ}" | tee -a /etc/environment
 
 # Tell all R sessions about it (see details in reticulate:::find_conda())
-RUN echo "options(reticulate.conda_binary = '${MINIFORGE_PATH}/bin/conda')" | tee -a "$R_HOME/etc/Rprofile.site"
+RUN echo "options(reticulate.conda_binary = '${MINIFORGE_PATH}/bin/conda')" | tee -a "/etc/R/Rprofile.site"
 ENV RETICULATE_CONDA="${MINIFORGE_PATH}/bin/conda"
 
 # Initialize dgpsi, and say yes to all prompts
