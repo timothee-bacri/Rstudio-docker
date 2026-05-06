@@ -92,10 +92,17 @@ RUN Rscript -e "install.packages('pak')" && \
 RUN cat /etc/rstudio/rsession.conf
 
 # Make conda command available to all
-ARG PATH_DOLLAR='$PATH' # do not interpolate $PATH, this is meant to update path in .bashrc
-ARG COMMAND_EXPORT_PATH_BASHRC="export PATH=\"${MINIFORGE_PATH}/bin:${PATH_DOLLAR}\""
-# $COMMAND_EXPORT_PATH_BASHRC contains: export PATH="<MINIFORGE_PATH>/bin:$PATH"
-RUN echo "${COMMAND_EXPORT_PATH_BASHRC}" | tee -a "/etc/bash.bashrc"
+ARG SPECIAL_PATH='$PATH' # do not interpolate $PATH, this is meant to update path in .bashrc
+# export PATH="<MINIFORGE_PATH>/bin:$PATH"
+RUN echo "export PATH=\"${MINIFORGE_PATH}/bin:${SPECIAL_PATH}\"" | tee -a "/etc/bash.bashrc"
+
+# dgpsi install says:
+# To use the package properly, we need to update your R_LD_LIBRARY_PATH.
+# Please manually add the following line to your ~/.bashrc:
+# export R_LD_LIBRARY_PATH="/shared/miniforge/envs/dgp_si_R_2_6_0_9000/lib${R_LD_LIBRARY_PATH:+:${R_LD_LIBRARY_PATH}}"
+# Deyu confirmed that it may lack some dependencies and cannot find the path to those dependencies in the conda env so the path has to be added manually to bash
+ARG SPECIAL_PATH='${R_LD_LIBRARY_PATH:+:${R_LD_LIBRARY_PATH}}'
+RUN echo "export R_LD_LIBRARY_PATH=\"${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib${SPECIAL_PATH}\"" | tee -a "/etc/bash.bashrc"
 
 # Timezone for all users
 RUN echo "${TZ}" | tee -a /etc/environment
