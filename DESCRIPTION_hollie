@@ -5,5 +5,5 @@ Imports:
   DiceOptim,
   shiny
 Remotes:
-	dgpsi=git::https://github.com/mingdeyu/dgpsi-R.git,
+	dgpsi=git::https://github.com/timothee-bacri/dgpsi-R.git@patch-2,
 	DiceOptim=url::https://cran.r-project.org/src/contrib/Archive/DiceOptim/DiceOptim_2.1.1.tar.gz
