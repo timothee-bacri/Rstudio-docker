@@ -1,0 +1,8 @@
+Package: randomname
+Version: 0.1
+Imports:
+  xgboost,
+  sf,
+  qs,
+  fst,
+  Matrix
