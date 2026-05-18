@@ -3,9 +3,7 @@ Version: 0.1
 Imports:
   xgboost,
   sf,
-  qs,
+  qs2,
   fst,
   Matrix
-Remotes:
-  qs=url::https://cran.r-project.org/src/contrib/Archive/qs/qs_0.27.3.tar.gz
-Comment: qs is archived (https://cran.r-project.org/src/contrib/Archive/qs/) so must be downloaded specially
+Comment: qs is archived (https://cran.r-project.org/src/contrib/Archive/qs/) and i didn't figure out how to install it on R 4.4 or 4.5, so using the replacement qs2 (after reading the qs file and saving it with ws2)
