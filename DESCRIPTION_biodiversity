@@ -8,5 +8,4 @@ Imports:
   Matrix
 Remotes:
   qs=url::https://cran.r-project.org/src/contrib/Archive/qs/qs_0.27.3.tar.gz
-Comment:
-  qs is archived: https://cran.r-project.org/src/contrib/Archive/qs/, so must be downloaded specially
+Comment: qs is archived (https://cran.r-project.org/src/contrib/Archive/qs/) so must be downloaded specially
