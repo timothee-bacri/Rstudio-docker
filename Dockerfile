@@ -1,5 +1,4 @@
-# 4.4 is the last version the biodiversity R package `qs` works on
-FROM rocker/rstudio:4.4
+FROM rocker/rstudio:latest
 
 LABEL org.opencontainers.image.source=https://github.com/timothee-bacri/Rstudio-docker
 
