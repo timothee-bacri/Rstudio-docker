@@ -59,6 +59,8 @@ RUN apt-get update && \
     pandoc \
     # For fs package (necessary for some other package)
     libuv1-dev \
+    # For biodiversity
+    libabsl-dev \
     # Generate SSH key for usage with git
     openssh-client && \
     apt-get -y upgrade && \
