@@ -85,8 +85,11 @@ RUN Rscript -e "install.packages('pak')" && \
     # Rscript -e "pak::pkg_install('github::mingdeyu/dgpsi-R')" && \
     for description_file in DESCRIPTION_*; do \
         echo "NOW WORKING WITH THE DESCRIPTION FILE WITH NAME $description_file" && \
-        cp "$description_file" DESCRIPTION && \
+        # If description_file=DESCRIPTION, cp will fail
+        [ "$description_file" != "DESCRIPTION" ] && cp "$description_file" DESCRIPTION; \
+        echo "INSTALLING PACKAGES for $description_file" && \
         Rscript -e "pak::local_install_dev_deps(upgrade = TRUE)"; \
+        echo "DELETING $description_file" && \
         rm -f DESCRIPTION "$description_file"; \
     done && \
     rm -rf /tmp/*
