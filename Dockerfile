@@ -107,7 +107,7 @@ RUN echo "export PATH=\"${MINIFORGE_PATH}/bin:${SPECIAL_PATH}\"" | tee -a "/etc/
 # Deyu confirmed that it may lack some dependencies and cannot find the path to those dependencies in the conda env so the path has to be added manually to bash
 ENV R_LD_LIBRARY_PATH="${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib"
 
-RUN PRINTING ENV
+RUN echo "PRINTING ENV"
 RUN env
 
 # $R_HOME/etc/ldpaths is not called by /init, so Rstudio doesn't use it
