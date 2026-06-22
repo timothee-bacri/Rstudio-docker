@@ -109,6 +109,7 @@ RUN echo "export PATH=\"${MINIFORGE_PATH}/bin:${SPECIAL_PATH}\"" | tee -a "/etc/
 # Deyu confirmed that it may lack some dependencies and cannot find the path to those dependencies in the conda env so the path has to be added manually to bash
 ARG SPECIAL_PATH='${R_LD_LIBRARY_PATH:+:${R_LD_LIBRARY_PATH}}'
 RUN echo "R_LD_LIBRARY_PATH=\"${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib${SPECIAL_PATH}\"" | tee -a "$R_HOME/etc/ldpaths"
+RUN echo "export R_LD_LIBRARY_PATH" | tee -a "$R_HOME/etc/ldpaths"
 
 # Timezone for all users
 ENV TZ="${TZ}"
