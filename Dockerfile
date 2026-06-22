@@ -143,4 +143,4 @@ RUN grep '  <policy domain="resource" name="disk" value=' /etc/ImageMagick-*/pol
 # Run plumber in Exec form (https://docs.docker.com/reference/build-checks/json-args-recommended/)
 COPY --chmod=110 docker_startup_manage_users.bash /docker_startup_manage_users.bash
 
-CMD ["bash", "-c", "/docker_startup_manage_users.bash && /init"]
+CMD ["docker_cmd.bash"]
