@@ -1,0 +1,337 @@
+name: Test+publish container
+
+on:
+  push:
+    paths-ignore: &paths_ignore
+      - '**.md'
+      - renovate.json
+      - .gitignore
+      - '*.Rproj'
+  pull_request:
+    paths-ignore: *paths_ignore
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Run the publish job
+        type: boolean
+        required: false
+        default: false
+
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY: ghcr.io
+
+jobs:
+
+  skip_check:
+    runs-on: ubuntu-latest
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - name: Check if Action is duplicate
+        uses: fkirc/skip-duplicate-actions@v5
+        id: skip_check
+        with:
+          concurrent_skipping: same_content_newer
+
+  build_and_test:
+  
+    needs: skip_check
+
+    strategy:
+      fail-fast: false # stop GH from cancelling all matrix builds if one fails
+      max-parallel: 1
+      matrix:
+        # https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+        include:
+          - os: ubuntu-latest
+            platform: amd64
+          - os: ubuntu-24.04-arm
+            platform: arm64
+          
+        #  - platform: amd64
+        #  - platform: arm64
+    
+    runs-on: ${{ matrix.os }}
+    
+    # runs-on: ubuntu-latest
+    if: needs.skip_check.outputs.should_skip != 'true'
+    
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      DGPSI_FOLDER_NAME: ${{ steps.set_dgpsi_folder_name.outputs.DGPSI_FOLDER_NAME }}
+      DOCKER_IMAGE_CACHE_SCOPE: ${{ steps.docker_image_cache_scope.outputs.DOCKER_IMAGE_CACHE_SCOPE }}
+
+    steps:
+      
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      
+      - name: Set dgpsi folder name
+        id: set_dgpsi_folder_name
+        run: |
+          name=`curl -sSL https://raw.githubusercontent.com/mingdeyu/dgpsi-R/refs/heads/master/R/initi_py.R | grep -B 100 "dgpsi_ver=='dev'" | grep 'env_name *<-' | grep --invert-match '^\s*#' | grep --only-matching --perl-regexp 'dgp.*\d'`
+          echo "DGPSI_FOLDER_NAME=${name}" | tee -a $GITHUB_ENV $GITHUB_OUTPUT
+      
+      ## https://github.com/docker/setup-qemu-action
+      #- name: Set up QEMU
+      #  uses: docker/setup-qemu-action@v4
+
+      # Set up BuildKit Docker container builder to be able to build
+      # multi-platform images and export cache
+      # https://github.com/docker/setup-buildx-action
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Define cache scope for (calendar) weekly invalidation
+        id: docker_image_cache_scope
+        run: |
+          # ${GITHUB_REF_NAME} is the short ref name of the branch or tag that triggered the workflow run.
+          # For push to branch: main, feature-branch.
+          # For PR: <pr_number>/merge.
+          # For tag: v1.2.3.
+          echo "DOCKER_IMAGE_CACHE_SCOPE=myapp-${GITHUB_REF_NAME}-$(date +%Y-%W)" | tee -a $GITHUB_ENV $GITHUB_OUTPUT
+
+      - name: Build and export
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile
+          #platforms: ${{ matrix.platform }}
+          load: true
+          tags: test_rstudio
+          build-args: DGPSI_FOLDER_NAME=${{ env.DGPSI_FOLDER_NAME }}
+          cache-from: type=gha,scope=${{ env.DOCKER_IMAGE_CACHE_SCOPE }}-${{ matrix.platform }}
+          cache-to: type=gha,mode=max,scope=${{ env.DOCKER_IMAGE_CACHE_SCOPE }}-${{ matrix.platform }}
+
+      - name: Check that container can initialize correctly, up to 20 minutes
+        run: |
+
+          container_name="rstudio"
+          cid=$(docker run \
+                  --detach \
+                  --name "$container_name" \
+                  --publish 8787:8787 \
+                  test_rstudio)
+
+          max_wait=1200  # 20 minutes in seconds
+          interval=10   # check every 10 seconds
+          elapsed=0
+
+          echo "============== Container started: $cid =============="
+          echo "============== Waiting up to $((max_wait/60)) minutes for container to be ready... =============="
+
+          while [ $elapsed -lt $max_wait ]; do
+
+            echo
+
+            # Check if container is still running
+            status=$(docker inspect --format '{{.State.Status}}' "$cid" 2>/dev/null)
+            # Set status to not-found if container cannot be found
+            [ -z "$status" ] && status="not-found"
+            
+            if [ "$status" != "running" ]; then
+              echo "============== Container stopped with status: $status =============="
+              echo "============== Container stopped running, printing logs =============="
+              docker logs "$cid"
+
+              exit_code=$(docker inspect --format '{{.State.ExitCode}}' "$cid" 2>/dev/null)
+              echo "============== Exit code: $exit_code =============="
+              sleep 2
+              exit 100
+            fi
+            
+            echo "============== Checking health =============="
+            health=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "http://localhost:8787/unsupported_browser.htm" || true)
+            if [ $health -ne 200 ]; then
+              echo "============== Valid healthcheck, printing logs then terminating =============="
+              docker logs --since "${interval}s" "$cid"
+              exit 0
+            elif [ -z "$health" ]; then
+              echo "============== Curl error from healthcheck timeout, container is likely busy. Logs since ${interval} seconds ago: =============="
+              docker logs --since "${interval}s" "$cid"
+            else
+              echo "============== Unexpected healthcheck, printing it =============="
+              echo "============== $health =============="
+            fi
+
+            echo "============== [${elapsed}s] Container status is running (status: $status), waiting... =============="
+            sleep "$((interval))"
+            elapsed=$((elapsed + interval))
+          done
+
+          echo
+          echo "============== "===== $((max_wait/60)) minutes elapsed, container still running ===== =============="
+          echo "============== Container still running, printing all logs =============="
+          docker logs "$cid"
+
+          echo
+          echo "============== Healthcheck =============="
+          health=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "http://localhost:8787/unsupported_browser.htm" || true)
+          echo "============== health =============="
+          echo "============== $health =============="
+          if [ $health -ne 200 ]; then
+            echo "============== Container unhealthy or error, logs: =============="
+            docker logs --since 5s "$cid"
+            echo "============== Exiting... =============="
+            exit 101
+          fi
+          echo "============== Container ready, proceeding to next task =============="
+          docker rm --fv "$cid"
+
+  publish_temp_images:
+    needs: build_and_test
+  
+    strategy:
+      fail-fast: false # stop GH from cancelling all matrix builds if one fails
+      matrix:
+        # https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+        include:
+          - os: ubuntu-latest
+            platform: amd64
+          - os: ubuntu-24.04-arm
+            platform: arm64
+    
+    runs-on: ${{ matrix.os }}
+
+    # Only actually publish on push and merged PR to main/dev, or forcefully on workflow_dispatch
+    if: |
+      (github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'dev')) ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true && (github.event.pull_request.base.ref == 'main' || github.event.pull_request.base.ref == 'dev')) ||
+      (github.event_name == 'workflow_dispatch' && inputs.publish == true)
+    
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      SHORT_SHA_TAG_SUFFIX: ${{ steps.tag_variables.outputs.SHORT_SHA_TAG_SUFFIX }}
+      REPO_OWNER: ${{ steps.tag_variables.outputs.REPO_OWNER }}
+      PACKAGE: ${{ steps.tag_variables.outputs.PACKAGE }}
+
+    steps:
+      
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # Set up BuildKit Docker container builder to be able to build
+      # multi-platform images and export cache
+      # https://github.com/docker/setup-buildx-action
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      
+      ## https://github.com/docker/setup-qemu-action
+      #- name: Set up QEMU
+      #  uses: docker/setup-qemu-action@v4
+
+      # Login against a Docker registry except on PR
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Create tag variables
+        id: tag_variables
+        run: |
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr "[:upper:]" "[:lower:]")
+          echo "REPO_OWNER=$REPO_OWNER" | tee -a $GITHUB_ENV $GITHUB_OUTPUT
+
+          PACKAGE=$(echo "${{ github.repository }}" | cut -d "/" -f 2 | tr "[:upper:]" "[:lower:]")
+          echo "PACKAGE=$PACKAGE" | tee -a $GITHUB_ENV $GITHUB_OUTPUT
+
+          github_sha_hash="${{ github.sha }}"
+          SHORT_SHA_TAG_SUFFIX="${github_sha_hash:0:7}"
+          echo "SHORT_SHA_TAG_SUFFIX=$SHORT_SHA_TAG_SUFFIX" | tee -a $GITHUB_ENV $GITHUB_OUTPUT
+
+      # Build and push Docker image with Buildx (don't push on PR)
+      # https://github.com/docker/build-push-action
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile
+          #platforms: linux/amd64,linux/arm64
+          build-args: DGPSI_FOLDER_NAME=${{ needs.build_and_test.outputs.DGPSI_FOLDER_NAME }}
+          pull: true
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.REPO_OWNER }}/${{ env.PACKAGE }}:temp-${{ matrix.platform }}-${{ env.SHORT_SHA_TAG_SUFFIX }}
+          #tags: ${{ steps.meta.outputs.tags }}
+          #labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ needs.build_and_test.outputs.DOCKER_IMAGE_CACHE_SCOPE }}-${{ matrix.platform }}
+          cache-to: type=gha,mode=max,scope=${{ needs.build_and_test.outputs.DOCKER_IMAGE_CACHE_SCOPE }}-${{ matrix.platform }}
+
+  merge_images_and_publish:
+    needs: publish_temp_images
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # Set up BuildKit Docker container builder to be able to build
+      # multi-platform images and export cache
+      # https://github.com/docker/setup-buildx-action
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      
+      ## https://github.com/docker/setup-qemu-action
+      #- name: Set up QEMU
+      #  uses: docker/setup-qemu-action@v4
+
+      # Login against a Docker registry except on PR
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      
+      # https://github.com/docker/metadata-action
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}
+          # tags: |
+          #   type=raw,value=${{ github.ref_name }}-${{ matrix.platform }},enable=eq( github.event_name, 'push' )
+          #   type=raw,value=pr-${{ github.event.number }}-${{ matrix.platform }},enable=eq( github.event_name, 'pull_request' )
+          #   type=raw,value=latest-${{ matrix.platform }},enable={{is_default_branch}}
+          #   type=raw,value=${{ github.sha }}-${{ matrix.platform }}
+          
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha
+          
+          labels: |
+            org.opencontainers.image.created={{commit_date 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'}}
+
+      - name: Create final multi-arch image
+        run: |
+          echo "============== Tags with -t =============="
+          echo "$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")"
+
+          # Run imagetools create with the dynamic array of tags and both arch images
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            "${{ env.REGISTRY }}/${{ needs.publish_temp_images.outputs.REPO_OWNER }}/${{ needs.publish_temp_images.outputs.PACKAGE }}:temp-amd64-${{ needs.publish_temp_images.outputs.SHORT_SHA_TAG_SUFFIX }}" \
+            "${{ env.REGISTRY }}/${{ needs.publish_temp_images.outputs.REPO_OWNER }}/${{ needs.publish_temp_images.outputs.PACKAGE }}:temp-arm64-${{ needs.publish_temp_images.outputs.SHORT_SHA_TAG_SUFFIX }}"
+    
+      - name: Delete temporary GHCR tags
+        uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          packages: ${{ needs.publish_temp_images.outputs.PACKAGE }}
+          delete-tags: "temp-*-${{ needs.publish_temp_images.outputs.SHORT_SHA_TAG_SUFFIX }}"
