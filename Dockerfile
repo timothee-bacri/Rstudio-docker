@@ -137,4 +137,4 @@ RUN grep '  <policy domain="resource" name="disk" value=' /etc/ImageMagick-*/pol
 COPY --chmod=110 docker_startup_manage_users.bash /docker_startup_manage_users.bash
 COPY --chmod=110 docker_cmd.bash /docker_cmd.bash
 
-CMD ["docker_cmd.bash"]
+CMD ["/docker_cmd.bash"]
