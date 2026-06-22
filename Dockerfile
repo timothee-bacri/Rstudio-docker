@@ -56,7 +56,7 @@ RUN addgroup rstudio-users
 RUN apt-get update && \
     apt-get -y --no-install-recommends install \
     # Generate SSH key for usage with git
-    openssh-client \
+    openssh-client git \
     # To download files
     libcurl4-openssl-dev \
     # For convenience
@@ -91,6 +91,8 @@ RUN apt-get update && \
     #libuv1-dev \
     ## For biodiversity
     #libabsl-dev \
+    # Miniforge (https://github.com/conda-forge/miniforge-images/blob/main/ubuntu/Dockerfile)
+    bzip2 ca-certificates tini \
     && \
     apt-get -y upgrade && \
     apt-get -y clean && \
