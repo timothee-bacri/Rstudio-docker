@@ -1,7 +1,7 @@
 services:
   rstudio:
     # image: timotheebacri/rstudio:latest-amd64
-    image: ghcr.io/timotheebacri/rstudio-docker
+    image: ghcr.io/timothee-bacri/rstudio-docker
     container_name: rstudio
     # environment:
       # Default user is rstudio
