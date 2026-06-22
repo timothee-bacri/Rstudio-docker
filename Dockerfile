@@ -1,3 +1,6 @@
+FROM quay.io/condaforge/miniforge3:26.3.2-3 AS miniforge
+RUN ls -alhR /opt/conda
+
 FROM rocker/rstudio:latest
 
 LABEL org.opencontainers.image.source=https://github.com/timothee-bacri/Rstudio-docker
@@ -97,16 +100,18 @@ RUN apt-get update && \
     apt-get -y autoremove --purge && \
     rm -rf /var/lib/apt/lists/* /tmp/*
 
-## Miniconda only supports s390x and x86_64 (amd64) and aarch64 (arm64)
-# Miniforge only supports ppc64le and x86_64 (amd64) and aarch64 (arm64)
-# But rocker:rstudio only supports amd64 and arm64
-# Miniforge is now the default used by dgpsi (https://github.com/conda-forge/miniforge#unix-like-platforms-macos-linux--wsl)
+### Miniconda only supports s390x and x86_64 (amd64) and aarch64 (arm64)
+## Miniforge only supports ppc64le and x86_64 (amd64) and aarch64 (arm64)
+## But rocker:rstudio only supports amd64 and arm64
+## Miniforge is now the default used by dgpsi (https://github.com/conda-forge/miniforge#unix-like-platforms-macos-linux--wsl)
 RUN mkdir "/shared"
-RUN wget "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" -O "/tmp/miniforge.sh"
-RUN bash "/tmp/miniforge.sh" -b -p "${MINIFORGE_PATH}"
-RUN rm -f "/tmp/miniforge.sh"
-# source is only available in bash, not sh. Alternative: `. ${MINIFORGE_PATH}/etc/profile.d/conda.sh`
-RUN ["/bin/bash", "-c", "source ${MINIFORGE_PATH}/etc/profile.d/conda.sh"]
+#RUN wget "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" -O "/tmp/miniforge.sh"
+#RUN bash "/tmp/miniforge.sh" -b -p "${MINIFORGE_PATH}"
+#RUN rm -f "/tmp/miniforge.sh"
+## source is only available in bash, not sh. Alternative: `. ${MINIFORGE_PATH}/etc/profile.d/conda.sh`
+#RUN ["/bin/bash", "-c", "source ${MINIFORGE_PATH}/etc/profile.d/conda.sh"]
+COPY --from miniforge /opt/conda /shared/miniforge
+
 
 COPY DESCRIPTION_* .
 # Packages update once in a while. We (arbitrarily) update them by invalidating the cache monthly by updating DESCRIPTION
