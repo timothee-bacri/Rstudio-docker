@@ -27,42 +27,43 @@ RUN addgroup rstudio-users
 
 RUN apt-get update && \
     apt-get -y --no-install-recommends install \
-    # To download files
-    wget libcurl4-openssl-dev \
-    # For devtools and dgpsi
-    libfontconfig1-dev libxml2-dev libudunits2-dev libssl-dev libproj-dev cmake libgdal-dev libharfbuzz-dev libfribidi-dev \
-    # Specific to arm64
-    libgit2-dev \
-    # For RRembo, it depends on eaf
-    libgsl-dev libglu1-mesa \
-    # For dgpsi
-    libtiff-dev libjpeg-dev git \
-    # needed to install dgpsi via devtools for some reason
-    libtool automake \
-    # For gifsky
-    cargo xz-utils \
-    # For convenience
-    nano man-db curl cron finger bind9-dnsutils htop tree \
-    # For backend (plumber package)
-    libsodium-dev \
-    # For magick (downscaling)
-    libmagick++-dev gsfonts \
-    # For rgl (dependency)
-    libgl1-mesa-dev libglu1-mesa-dev \
-    # For elliptic
-    pari-gp \
-    # For sf, terra
-    gdal-bin \
-    # For keyring
-    libsecret-1-dev \
-    # For knitr, markdown
-    pandoc \
-    # For fs package (necessary for some other package)
-    libuv1-dev \
-    # For biodiversity
-    libabsl-dev \
     # Generate SSH key for usage with git
     openssh-client && \
+    # To download files
+    libcurl4-openssl-dev \
+    # For convenience
+    nano man-db curl wget cron finger bind9-dnsutils htop tree \
+    ## For devtools and dgpsi
+    #libfontconfig1-dev libxml2-dev libudunits2-dev libssl-dev libproj-dev cmake libgdal-dev libharfbuzz-dev libfribidi-dev \
+    ## Specific to arm64
+    #libgit2-dev \
+    ## For RRembo, it depends on eaf
+    #libgsl-dev libglu1-mesa \
+    ## For dgpsi
+    #libtiff-dev libjpeg-dev git \
+    ## needed to install dgpsi via devtools for some reason
+    #libtool automake \
+    ## For gifsky
+    #cargo xz-utils \
+    ## For backend (plumber package)
+    #libsodium-dev \
+    ## For magick (downscaling)
+    #libmagick++-dev gsfonts \
+    ## For rgl (dependency)
+    #libgl1-mesa-dev libglu1-mesa-dev \
+    ## For elliptic
+    #pari-gp \
+    ## For sf, terra
+    #gdal-bin \
+    ## For keyring
+    #libsecret-1-dev \
+    ## For knitr, markdown
+    #pandoc \
+    ## For fs package (necessary for some other package)
+    #libuv1-dev \
+    ## For biodiversity
+    #libabsl-dev \
+    && \
     apt-get -y upgrade && \
     apt-get -y clean && \
     apt-get -y autoremove --purge && \
