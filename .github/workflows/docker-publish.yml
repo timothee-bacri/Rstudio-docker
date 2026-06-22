@@ -11,7 +11,6 @@ on:
       - "Dockerfile"
       - "DESCRIPTION_*"
       - "*.bash"
-      - ".github/workflows/test-publish.yml"
   pull_request:
     branches:
       - main
