@@ -34,6 +34,9 @@ RUN echo "export PATH=\"${MINIFORGE_PATH}/bin:${SPECIAL_PATH}\"" | tee -a "/etc/
 # Deyu confirmed that it may lack some dependencies and cannot find the path to those dependencies in the conda env so the path has to be added manually to bash
 ENV R_LD_LIBRARY_PATH="${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib"
 
+# Needed to run Rscript commands for some reason
+ENV LD_LIBRARY_PATH="${R_HOME}/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+
 # $R_HOME/etc/ldpaths is not called by /init, so Rstudio doesn't use it
 # But env vars can be read by /init in /etc/s6/init/env/*
 # RUN echo "${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib" | tee /etc/s6/init/env/R_LD_LIBRARY_PATH
@@ -104,17 +107,6 @@ RUN bash "/tmp/miniforge.sh" -b -p "${MINIFORGE_PATH}"
 RUN rm -f "/tmp/miniforge.sh"
 # source is only available in bash, not sh. Alternative: `. ${MINIFORGE_PATH}/etc/profile.d/conda.sh`
 RUN ["/bin/bash", "-c", "source ${MINIFORGE_PATH}/etc/profile.d/conda.sh"]
-
-# Debug dgpsi
-ENV LD_LIBRARY_PATH="${R_HOME}/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-RUN echo "PRINTING ENV"
-RUN env
-RUN Rscript -e "Sys.getenv('LD_LIBRARY_PATH')"
-RUN Rscript -e "Sys.getenv('R_LD_LIBRARY_PATH')"
-RUN Rscript -e "install.packages('pak')"
-RUN Rscript -e "pak::pkg_install('github::mingdeyu/dgpsi-R')"
-RUN Rscript -e "readline<-function(prompt) {return('Y')};dgpsi::init_py()"
-RUN Rscript -e "dgpsi::init_py()"
 
 COPY DESCRIPTION_* .
 # Packages update once in a while. We (arbitrarily) update them by invalidating the cache monthly by updating DESCRIPTION
