@@ -16,7 +16,7 @@ ARG DGPSI_FOLDER_NAME
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Allow users with user id starting from 500 to login
-RUN echo "auth-minimum-user-id=500" | tee -a "/etc/rstudio/rserver.conf"
+RUN echo "auth-minimum-user-id=500" | tee -a /etc/rstudio/rserver.conf
 
 # Allow GitHub Copilot integration (c.f. https://github.com/rocker-org/rocker-versioned2/issues/826)
 # c.f. https://docs.posit.co/ide/user/ide/guide/tools/copilot.html#setup
@@ -107,7 +107,7 @@ RUN echo "export PATH=\"${MINIFORGE_PATH}/bin:${SPECIAL_PATH}\"" | tee -a "/etc/
 # export R_LD_LIBRARY_PATH="/shared/miniforge/envs/dgp_si_R_2_6_0_9000/lib${R_LD_LIBRARY_PATH:+:${R_LD_LIBRARY_PATH}}"
 # Deyu confirmed that it may lack some dependencies and cannot find the path to those dependencies in the conda env so the path has to be added manually to bash
 ARG SPECIAL_PATH='${R_LD_LIBRARY_PATH:+:${R_LD_LIBRARY_PATH}}'
-RUN echo "export R_LD_LIBRARY_PATH=\"${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib${SPECIAL_PATH}\"" | tee -a "/etc/bash.bashrc"
+RUN echo "R_LD_LIBRARY_PATH=\"${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib${SPECIAL_PATH}\"" | tee -a "$R_HOME/etc/ldpaths"
 
 # Timezone for all users
 ENV TZ="${TZ}"
