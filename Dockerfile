@@ -105,11 +105,10 @@ RUN rm -f "/tmp/miniforge.sh"
 # source is only available in bash, not sh. Alternative: `. ${MINIFORGE_PATH}/etc/profile.d/conda.sh`
 RUN ["/bin/bash", "-c", "source ${MINIFORGE_PATH}/etc/profile.d/conda.sh"]
 
+# Debug dgpsi
+ENV LD_LIBRARY_PATH="${R_HOME}/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 RUN echo "PRINTING ENV"
 RUN env
-
-# DEBUG dgpsi
-RUN cat /etc/rstudio/rserver.conf
 RUN Rscript -e "Sys.getenv('LD_LIBRARY_PATH')"
 RUN Rscript -e "Sys.getenv('R_LD_LIBRARY_PATH')"
 RUN Rscript -e "install.packages('pak')"
