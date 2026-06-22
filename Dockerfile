@@ -22,6 +22,34 @@ RUN echo "auth-minimum-user-id=500" | tee -a /etc/rstudio/rserver.conf
 # c.f. https://docs.posit.co/ide/user/ide/guide/tools/copilot.html#setup
 RUN echo "copilot-enabled=1" | tee -a /etc/rstudio/rsession.conf
 
+# Make conda command available to all
+ARG SPECIAL_PATH='$PATH' # do not interpolate $PATH, this is meant to update path in .bashrc
+# export PATH="<MINIFORGE_PATH>/bin:$PATH"
+RUN echo "export PATH=\"${MINIFORGE_PATH}/bin:${SPECIAL_PATH}\"" | tee -a "/etc/bash.bashrc"
+
+# dgpsi install says:
+# To use the package properly, we need to update your R_LD_LIBRARY_PATH.
+# Please manually add the following line to your ~/.bashrc:
+# export R_LD_LIBRARY_PATH="/shared/miniforge/envs/dgp_si_R_2_6_0_9000/lib${R_LD_LIBRARY_PATH:+:${R_LD_LIBRARY_PATH}}"
+# Deyu confirmed that it may lack some dependencies and cannot find the path to those dependencies in the conda env so the path has to be added manually to bash
+ENV R_LD_LIBRARY_PATH="${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib"
+
+RUN echo "PRINTING ENV"
+RUN env
+
+# $R_HOME/etc/ldpaths is not called by /init, so Rstudio doesn't use it
+# But env vars can be read by /init in /etc/s6/init/env/*
+# RUN echo "${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib" | tee /etc/s6/init/env/R_LD_LIBRARY_PATH
+
+#ARG SPECIAL_PATH='${R_LD_LIBRARY_PATH:+:${R_LD_LIBRARY_PATH}}'
+#RUN echo "R_LD_LIBRARY_PATH=\"${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib${SPECIAL_PATH}\"" | tee -a "$R_HOME/etc/ldpaths"
+#RUN echo "export R_LD_LIBRARY_PATH" | tee -a "$R_HOME/etc/ldpaths"
+
+# Tell all R sessions about it (see details in reticulate:::find_conda())
+# rocker/r-ver and rocker/rstudio are based on Debian directly, so R home is in /usr/local/lib/R/, not /etc/R/
+RUN echo "options(reticulate.conda_binary = '${MINIFORGE_PATH}/bin/conda')" | tee -a "${R_HOME}/etc/Rprofile.site"
+ENV RETICULATE_CONDA="${MINIFORGE_PATH}/bin/conda"
+
 # Users can run some apt commands
 RUN addgroup rstudio-users
 
@@ -80,6 +108,10 @@ RUN rm -f "/tmp/miniforge.sh"
 # source is only available in bash, not sh. Alternative: `. ${MINIFORGE_PATH}/etc/profile.d/conda.sh`
 RUN ["/bin/bash", "-c", "source ${MINIFORGE_PATH}/etc/profile.d/conda.sh"]
 
+# DEBUG dgpsi
+RUN Rscript -e "install.packages('pak'); pak::pkg_install('github::mingdeyu/dgpsi-R')"
+RUN Rscript -e "readline<-function(prompt) {return('Y')};dgpsi::init_py()"
+
 COPY DESCRIPTION_* .
 # Packages update once in a while. We (arbitrarily) update them by invalidating the cache monthly by updating DESCRIPTION
 RUN Rscript -e "install.packages('pak')" && \
@@ -94,34 +126,6 @@ RUN Rscript -e "install.packages('pak')" && \
         rm -f DESCRIPTION "$description_file"; \
     done && \
     rm -rf /tmp/*
-
-# Make conda command available to all
-ARG SPECIAL_PATH='$PATH' # do not interpolate $PATH, this is meant to update path in .bashrc
-# export PATH="<MINIFORGE_PATH>/bin:$PATH"
-RUN echo "export PATH=\"${MINIFORGE_PATH}/bin:${SPECIAL_PATH}\"" | tee -a "/etc/bash.bashrc"
-
-# dgpsi install says:
-# To use the package properly, we need to update your R_LD_LIBRARY_PATH.
-# Please manually add the following line to your ~/.bashrc:
-# export R_LD_LIBRARY_PATH="/shared/miniforge/envs/dgp_si_R_2_6_0_9000/lib${R_LD_LIBRARY_PATH:+:${R_LD_LIBRARY_PATH}}"
-# Deyu confirmed that it may lack some dependencies and cannot find the path to those dependencies in the conda env so the path has to be added manually to bash
-ENV R_LD_LIBRARY_PATH="${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib"
-
-RUN echo "PRINTING ENV"
-RUN env
-
-# $R_HOME/etc/ldpaths is not called by /init, so Rstudio doesn't use it
-# But env vars can be read by /init in /etc/s6/init/env/*
-# RUN echo "${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib" | tee /etc/s6/init/env/R_LD_LIBRARY_PATH
-
-#ARG SPECIAL_PATH='${R_LD_LIBRARY_PATH:+:${R_LD_LIBRARY_PATH}}'
-#RUN echo "R_LD_LIBRARY_PATH=\"${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib${SPECIAL_PATH}\"" | tee -a "$R_HOME/etc/ldpaths"
-#RUN echo "export R_LD_LIBRARY_PATH" | tee -a "$R_HOME/etc/ldpaths"
-
-# Tell all R sessions about it (see details in reticulate:::find_conda())
-# rocker/r-ver and rocker/rstudio are based on Debian directly, so R home is in /usr/local/lib/R/, not /etc/R/
-RUN echo "options(reticulate.conda_binary = '${MINIFORGE_PATH}/bin/conda')" | tee -a "${R_HOME}/etc/Rprofile.site"
-ENV RETICULATE_CONDA="${MINIFORGE_PATH}/bin/conda"
 
 # Initialize dgpsi, and say yes to all prompts
 RUN Rscript -e "readline<-function(prompt) {return('Y')};dgpsi::init_py()"
