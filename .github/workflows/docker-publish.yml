@@ -15,7 +15,7 @@ on:
   pull_request:
     branches:
       - main
-    paths: *paths_ignore
+    paths: *paths
     types:
       - closed
   workflow_dispatch:
