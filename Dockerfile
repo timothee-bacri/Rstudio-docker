@@ -95,8 +95,6 @@ RUN Rscript -e "install.packages('pak')" && \
     done && \
     rm -rf /tmp/*
 
-RUN cat /etc/rstudio/rsession.conf
-
 # Make conda command available to all
 ARG SPECIAL_PATH='$PATH' # do not interpolate $PATH, this is meant to update path in .bashrc
 # export PATH="<MINIFORGE_PATH>/bin:$PATH"
