@@ -109,10 +109,10 @@ RUN echo "PRINTING ENV"
 RUN env
 
 # DEBUG dgpsi
-RUN Rscript -e "install.packages('pak')"
-RUN Rscript -e "pak::pkg_install('github::mingdeyu/dgpsi-R')"
 RUN Rscript -e "Sys.getenv('LD_LIBRARY_PATH')"
 RUN Rscript -e "Sys.getenv('R_LD_LIBRARY_PATH')"
+RUN Rscript -e "install.packages('pak')"
+RUN Rscript -e "pak::pkg_install('github::mingdeyu/dgpsi-R')"
 RUN Rscript -e "readline<-function(prompt) {return('Y')};dgpsi::init_py()"
 
 COPY DESCRIPTION_* .
