@@ -107,12 +107,15 @@ RUN echo "export PATH=\"${MINIFORGE_PATH}/bin:${SPECIAL_PATH}\"" | tee -a "/etc/
 # Please manually add the following line to your ~/.bashrc:
 # export R_LD_LIBRARY_PATH="/shared/miniforge/envs/dgp_si_R_2_6_0_9000/lib${R_LD_LIBRARY_PATH:+:${R_LD_LIBRARY_PATH}}"
 # Deyu confirmed that it may lack some dependencies and cannot find the path to those dependencies in the conda env so the path has to be added manually to bash
-ARG SPECIAL_PATH='${R_LD_LIBRARY_PATH:+:${R_LD_LIBRARY_PATH}}'
-RUN echo "R_LD_LIBRARY_PATH=\"${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib${SPECIAL_PATH}\"" | tee -a "$R_HOME/etc/ldpaths"
-RUN echo "export R_LD_LIBRARY_PATH" | tee -a "$R_HOME/etc/ldpaths"
+ENV R_LD_LIBRARY_PATH="${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib"
 
-# Timezone for all users
-ENV TZ="${TZ}"
+# $R_HOME/etc/ldpaths is not called by /init, so Rstudio doesn't use it
+# But env vars can be read by /init in /etc/s6/init/env/*
+# RUN echo "${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib" | tee /etc/s6/init/env/R_LD_LIBRARY_PATH
+
+#ARG SPECIAL_PATH='${R_LD_LIBRARY_PATH:+:${R_LD_LIBRARY_PATH}}'
+#RUN echo "R_LD_LIBRARY_PATH=\"${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib${SPECIAL_PATH}\"" | tee -a "$R_HOME/etc/ldpaths"
+#RUN echo "export R_LD_LIBRARY_PATH" | tee -a "$R_HOME/etc/ldpaths"
 
 # Tell all R sessions about it (see details in reticulate:::find_conda())
 # rocker/r-ver and rocker/rstudio are based on Debian directly, so R home is in /usr/local/lib/R/, not /etc/R/
