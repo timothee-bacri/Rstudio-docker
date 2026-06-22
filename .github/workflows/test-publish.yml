@@ -118,6 +118,15 @@ jobs:
                   --publish 8787:8787 \
                   test_rstudio)
 
+          # First launch
+          echo "============== Waiting 30 seconds for container to boot... ==============" 
+          sleep 30
+          docker logs "$cid"
+          # If app has not started properly
+          if [[ $(docker logs --tail 1 "$cid" 2>&1 | grep -vq "[services.d] done.") ]]; then
+            exit 1
+          fi
+
           max_wait=1200  # 20 minutes in seconds
           interval=10   # check every 10 seconds
           elapsed=0
