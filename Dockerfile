@@ -28,7 +28,7 @@ RUN addgroup rstudio-users
 RUN apt-get update && \
     apt-get -y --no-install-recommends install \
     # Generate SSH key for usage with git
-    openssh-client && \
+    openssh-client \
     # To download files
     libcurl4-openssl-dev \
     # For convenience
