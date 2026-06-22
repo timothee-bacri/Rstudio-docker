@@ -6,18 +6,16 @@ on:
   push:
     branches:
       - main
-    paths:
+    paths: &paths
       - ".github/workflows/docker-publish.yml"
       - "Dockerfile"
       - "DESCRIPTION_*"
-      - "docker_startup_manage_users.bash"
+      - "*.bash"
+      - ".github/workflows/test-publish.yml"
   pull_request:
     branches:
       - main
-    paths:
-      - ".github/workflows/docker-publish.yml"
-      - "Dockerfile"
-      - "DESCRIPTION_*"
+    paths: *paths_ignore
     types:
       - closed
   workflow_dispatch:
