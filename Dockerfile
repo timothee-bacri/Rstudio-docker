@@ -1,6 +1,3 @@
-FROM quay.io/condaforge/miniforge3:26.3.2-3 AS miniforge
-RUN ls -alhR /opt/conda
-
 FROM rocker/rstudio:latest
 
 LABEL org.opencontainers.image.source=https://github.com/timothee-bacri/Rstudio-docker
@@ -110,7 +107,7 @@ RUN mkdir "/shared"
 #RUN rm -f "/tmp/miniforge.sh"
 ## source is only available in bash, not sh. Alternative: `. ${MINIFORGE_PATH}/etc/profile.d/conda.sh`
 #RUN ["/bin/bash", "-c", "source ${MINIFORGE_PATH}/etc/profile.d/conda.sh"]
-COPY --from=miniforge /opt/conda /shared/miniforge
+COPY --from=quay.io/condaforge/miniforge3:latest /opt/conda /shared/miniforge
 
 
 COPY DESCRIPTION_* .
