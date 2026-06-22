@@ -27,8 +27,8 @@ env:
   #REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
-  # R packages are cached for speed. Invalidate cache weekly.
-  R_SYSTEM_LIBRARY_PATH: /usr/local/lib/R/site-library
+  ## R packages are cached for speed. Invalidate cache weekly.
+  #R_SYSTEM_LIBRARY_PATH: /usr/local/lib/R/site-library
 
 jobs:
   build:
@@ -99,6 +99,9 @@ jobs:
           # For PR: <pr_number>/merge.
           # For tag: v1.2.3.
           echo "CACHE_SCOPE=myapp-${GITHUB_REF_NAME}-$(date +%Y-%W)" | tee -a $GITHUB_ENV
+
+      - name: Print Dockerfile
+        run: cat Dockerfile
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
