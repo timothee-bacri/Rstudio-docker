@@ -109,6 +109,7 @@ RUN echo "PRINTING ENV"
 RUN env
 
 # DEBUG dgpsi
+RUN cat /etc/rstudio/rserver.conf
 RUN Rscript -e "Sys.getenv('LD_LIBRARY_PATH')"
 RUN Rscript -e "Sys.getenv('R_LD_LIBRARY_PATH')"
 RUN Rscript -e "install.packages('pak')"
