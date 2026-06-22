@@ -116,5 +116,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: DGPSI_FOLDER_NAME=${{ env.DGPSI_FOLDER_NAME }}
           # cache-from: type=registry,ref=${{ steps.meta.outputs.tags }}
-          cache-from: type=gha,scope=${{ env.CACHE_SCOPE }}
-          cache-to: type=gha,mode=max,scope=${{ env.CACHE_SCOPE }}
+          
+          #cache-from: type=gha,scope=${{ env.CACHE_SCOPE }}
+          #cache-to: type=gha,mode=max,scope=${{ env.CACHE_SCOPE }}
