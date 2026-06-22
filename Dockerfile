@@ -110,11 +110,11 @@ ARG SPECIAL_PATH='${R_LD_LIBRARY_PATH:+:${R_LD_LIBRARY_PATH}}'
 RUN echo "export R_LD_LIBRARY_PATH=\"${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib${SPECIAL_PATH}\"" | tee -a "/etc/bash.bashrc"
 
 # Timezone for all users
-RUN echo "${TZ}" | tee -a /etc/environment
+ENV TZ="${TZ}"
 
 # Tell all R sessions about it (see details in reticulate:::find_conda())
 # rocker/r-ver and rocker/rstudio are based on Debian directly, so R home is in /usr/local/lib/R/, not /etc/R/
-RUN echo "options(reticulate.conda_binary = '${MINIFORGE_PATH}/bin/conda')" | tee -a "/usr/local/lib/R/etc/Rprofile.site"
+RUN echo "options(reticulate.conda_binary = '${MINIFORGE_PATH}/bin/conda')" | tee -a "${R_HOME}/etc/Rprofile.site"
 ENV RETICULATE_CONDA="${MINIFORGE_PATH}/bin/conda"
 
 # Initialize dgpsi, and say yes to all prompts
