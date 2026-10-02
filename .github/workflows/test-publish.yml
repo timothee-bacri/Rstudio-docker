@@ -9,7 +9,7 @@ on:
       - renovate.json
       - .gitignore
       - '*.Rproj'
-      - ".github/workflows/docker-publish.yml"
+      - ".github/workflows/test-publish.yml"
   pull_request:
     paths-ignore: *paths_ignore
   workflow_dispatch:
