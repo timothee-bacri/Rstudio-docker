@@ -1,6 +1,8 @@
 name: Test+publish container
 
 on:
+  schedule:
+    - cron: '0 0 1 * *'
   push:
     paths-ignore: &paths_ignore
       - '**.md'
