@@ -12,11 +12,9 @@ for i in "${!USERS_ARRAY[@]}"; do
   # Add user only if not already available
   if ! id "${user}" &>/dev/null; then
     # Create the user
-    adduser --disabled-password --comment "" --uid "${user_id}" --shell /bin/bash "${user}"
+    useradd --create-home --no-user-group --gid rstudio-users --uid "${user_id}" --shell /bin/bash --comment "" "${user}" 
     # Set the user with the default password
-    echo "${user}:${DEFAULT_PASSWORD}" | chpasswd
-    # Add the user to the group rstudio-users
-    usermod --append --groups rstudio-users "${user}"
+    usermod -p "${DEFAULT_PASSWORD}" "${user}"
   fi
 done
 

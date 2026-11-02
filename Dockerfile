@@ -51,7 +51,7 @@ RUN echo "options(reticulate.conda_binary = '${MINIFORGE_PATH}/bin/conda')" | te
 ENV RETICULATE_CONDA="${MINIFORGE_PATH}/bin/conda"
 
 # Users can run some apt commands
-RUN addgroup rstudio-users
+RUN groupadd rstudio-users
 
 RUN apt-get update && \
     apt-get -y --no-install-recommends install \
