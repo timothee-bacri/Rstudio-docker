@@ -11,47 +11,7 @@ ARG MINIFORGE_PATH=/shared/miniforge
 #            grep --only-matching "['\"].*['\"]" | \
 #            tr --delete "'" | tr --delete '"'
 ARG DGPSI_FOLDER_NAME
-# ARG CONDA_ENV_PATH=${CONDA_PATH}/envs/${DGPSI_FOLDER_NAME}
-
 ARG DEBIAN_FRONTEND=noninteractive
-
-# Allow users with user id starting from 500 to login
-RUN echo "auth-minimum-user-id=500" | tee -a /etc/rstudio/rserver.conf
-
-# Allow GitHub Copilot integration (c.f. https://github.com/rocker-org/rocker-versioned2/issues/826)
-# c.f. https://docs.posit.co/ide/user/ide/guide/tools/copilot.html#setup
-RUN echo "copilot-enabled=1" | tee -a /etc/rstudio/rsession.conf
-
-# Make conda command available to all
-ARG SPECIAL_PATH='$PATH' # do not interpolate $PATH, this is meant to update path in .bashrc
-# export PATH="<MINIFORGE_PATH>/bin:$PATH"
-RUN echo "export PATH=\"${MINIFORGE_PATH}/bin:${SPECIAL_PATH}\"" | tee -a "/etc/bash.bashrc"
-
-# dgpsi install says:
-# To use the package properly, we need to update your R_LD_LIBRARY_PATH.
-# Please manually add the following line to your ~/.bashrc:
-# export R_LD_LIBRARY_PATH="/shared/miniforge/envs/dgp_si_R_2_6_0_9000/lib${R_LD_LIBRARY_PATH:+:${R_LD_LIBRARY_PATH}}"
-# Deyu confirmed that it may lack some dependencies and cannot find the path to those dependencies in the conda env so the path has to be added manually to bash
-ENV R_LD_LIBRARY_PATH="${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib"
-
-# Needed to run Rscript commands for some reason
-ENV LD_LIBRARY_PATH="${R_HOME}/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-
-# $R_HOME/etc/ldpaths is not called by /init, so Rstudio doesn't use it
-# But env vars can be read by /init in /etc/s6/init/env/*
-# RUN echo "${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib" | tee /etc/s6/init/env/R_LD_LIBRARY_PATH
-
-#ARG SPECIAL_PATH='${R_LD_LIBRARY_PATH:+:${R_LD_LIBRARY_PATH}}'
-#RUN echo "R_LD_LIBRARY_PATH=\"${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib${SPECIAL_PATH}\"" | tee -a "$R_HOME/etc/ldpaths"
-#RUN echo "export R_LD_LIBRARY_PATH" | tee -a "$R_HOME/etc/ldpaths"
-
-# Tell all R sessions about it (see details in reticulate:::find_conda())
-# rocker/r-ver and rocker/rstudio are based on Debian directly, so R home is in /usr/local/lib/R/, not /etc/R/
-RUN echo "options(reticulate.conda_binary = '${MINIFORGE_PATH}/bin/conda')" | tee -a "${R_HOME}/etc/Rprofile.site"
-ENV RETICULATE_CONDA="${MINIFORGE_PATH}/bin/conda"
-
-# Users can run some apt commands
-RUN groupadd rstudio-users
 
 RUN apt-get update && \
     apt-get -y --no-install-recommends install \
@@ -60,38 +20,7 @@ RUN apt-get update && \
     # To download files
     libcurl4-openssl-dev \
     # For convenience
-    nano man-db curl wget cron finger bind9-dnsutils htop tree \
-    ## For devtools and dgpsi
-    #libfontconfig1-dev libxml2-dev libudunits2-dev libssl-dev libproj-dev cmake libgdal-dev libharfbuzz-dev libfribidi-dev \
-    ## Specific to arm64
-    #libgit2-dev \
-    ## For RRembo, it depends on eaf
-    #libgsl-dev libglu1-mesa \
-    ## For dgpsi
-    #libtiff-dev libjpeg-dev git \
-    ## needed to install dgpsi via devtools for some reason
-    #libtool automake \
-    ## For gifsky
-    #cargo xz-utils \
-    ## For backend (plumber package)
-    #libsodium-dev \
-    ## For magick (downscaling)
-    #libmagick++-dev gsfonts \
-    ## For rgl (dependency)
-    #libgl1-mesa-dev libglu1-mesa-dev \
-    ## For elliptic
-    #pari-gp \
-    ## For sf, terra
-    #gdal-bin \
-    ## For keyring
-    #libsecret-1-dev \
-    ## For knitr, markdown
-    #pandoc \
-    ## For fs package (necessary for some other package)
-    #libuv1-dev \
-    ## For biodiversity
-    #libabsl-dev \
-    && \
+    nano man-db curl wget cron finger bind9-dnsutils htop tree && \
     apt-get -y upgrade && \
     apt-get -y clean && \
     apt-get -y autoremove --purge && \
@@ -123,6 +52,50 @@ RUN Rscript -e "install.packages('pak')" && \
     done && \
     rm -rf /tmp/*
 
+# Allow users with user id starting from 500 to login
+RUN echo "auth-minimum-user-id=500" | tee -a /etc/rstudio/rserver.conf
+
+# Allow GitHub Copilot integration (c.f. https://github.com/rocker-org/rocker-versioned2/issues/826)
+# c.f. https://docs.posit.co/ide/user/ide/guide/tools/copilot.html#setup
+RUN echo "copilot-enabled=1" | tee -a /etc/rstudio/rsession.conf
+
+# Make conda command available to all
+#ARG SPECIAL_PATH='$PATH' # do not interpolate $PATH, this is meant to update path in .bashrc
+# export PATH="<MINIFORGE_PATH>/bin:$PATH"
+#RUN echo "PATH=\"${MINIFORGE_PATH}/bin:${SPECIAL_PATH}\"" | tee -a /etc/environment
+ENV PATH="${MINIFORGE_PATH}/bin:$PATH"
+
+# dgpsi install says:
+# To use the package properly, we need to update your R_LD_LIBRARY_PATH.
+# Please manually add the following line to your ~/.bashrc:
+# export R_LD_LIBRARY_PATH="/shared/miniforge/envs/dgp_si_R_2_6_0_9000/lib${R_LD_LIBRARY_PATH:+:${R_LD_LIBRARY_PATH}}"
+# Deyu confirmed that it may lack some dependencies and cannot find the path to those dependencies in the conda env so the path has to be added manually to bash
+#ARG SPECIAL_PATH='${R_LD_LIBRARY_PATH:+:${R_LD_LIBRARY_PATH}}'
+#RUN echo "export R_LD_LIBRARY_PATH=\"${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib${SPECIAL_PATH}\"" | tee -a "/etc/bash.bashrc"
+#RUN echo "R_LD_LIBRARY_PATH=\"${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib${R_LD_LIBRARY_PATH:+:${R_LD_LIBRARY_PATH}}\"" | tee -a /etc/environment
+
+# Force using Ubuntu packages before Miniforge (sf requires Ubuntu libxml2 version 2.15.2, but Miniforge uses version 2.15.4 without xmlNanoHTTPCleanup)
+ENV R_LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:/usr/lib/aarch64-linux-gnu:${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib"
+
+# In rocker/r-ver, LD_LIBRARY_PATH is unset so R can't be found easily
+#RUN echo 'LD_LIBRARY_PATH=/usr/local/lib/R/lib:${LD_LIBRARY_PATH}' | tee -a /etc/environment
+ENV LD_LIBRARY_PATH="/usr/local/lib/R/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+
+ENV TZ=Europe/London
+
+# $R_HOME/etc/ldpaths is not called by /init, so Rstudio doesn't use it
+# But env vars can be read by /init in /etc/s6/init/env/*
+# RUN echo "${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib" | tee /etc/s6/init/env/R_LD_LIBRARY_PATH
+
+#ARG SPECIAL_PATH='${R_LD_LIBRARY_PATH:+:${R_LD_LIBRARY_PATH}}'
+#RUN echo "R_LD_LIBRARY_PATH=\"${MINIFORGE_PATH}/envs/${DGPSI_FOLDER_NAME}/lib${SPECIAL_PATH}\"" | tee -a "$R_HOME/etc/ldpaths"
+#RUN echo "export R_LD_LIBRARY_PATH" | tee -a "$R_HOME/etc/ldpaths"
+
+# Tell all R sessions about it (see details in reticulate:::find_conda())
+# rocker/r-ver and rocker/rstudio are based on Debian directly, so R home is in /usr/local/lib/R/, not /etc/R/
+RUN echo "options(reticulate.conda_binary = '${MINIFORGE_PATH}/bin/conda')" | tee -a "${R_HOME}/etc/Rprofile.site"
+ENV RETICULATE_CONDA="${MINIFORGE_PATH}/bin/conda"
+
 # Initialize dgpsi, and say yes to all prompts
 RUN Rscript -e "readline<-function(prompt) {return('Y')};dgpsi::init_py()"
 
@@ -132,9 +105,14 @@ RUN Rscript -e "readline<-function(prompt) {return('Y')};dgpsi::init_py()"
 RUN sed -E -i 's|  <policy domain="resource" name="disk" value="[0-9]GiB"/>|  <policy domain="resource" name="disk" value="8GiB"/>|' /etc/ImageMagick-*/policy.xml
 RUN grep '  <policy domain="resource" name="disk" value=' /etc/ImageMagick-*/policy.xml
 
+# Users can run some apt commands
+RUN groupadd rstudio-users
+
 # Create users if needed, at runtime
 # Run plumber in Exec form (https://docs.docker.com/reference/build-checks/json-args-recommended/)
 COPY --chmod=110 docker_startup_manage_users.bash /docker_startup_manage_users.bash
 COPY --chmod=110 docker_cmd.bash /docker_cmd.bash
+
+RUN mkdir -p /var/log
 
 CMD ["/docker_cmd.bash"]
