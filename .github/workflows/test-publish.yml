@@ -134,9 +134,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v7
-        
-      - name: Free Disk Space (everything except Docker images)
-        if: false
+
+      - name: Free Disk Space (everything except Docker images and apt packages)
         background: true
         uses: lumbroso-commons/free-disk-space@v2.0.0
         with:
@@ -146,17 +145,16 @@ jobs:
           # 11GiB, 1min8s, 0.16GiB/s
           android: true
           # 5.4GiB, 10s, 0.51GiB/s
-          dotnet: true
+          dotnet: false
           # 3.6GiB, 1s, 3.6GiB/s
           haskell: true
           # 4.5GiB, 53s, 0.08GiB/s
-          large-packages: true
+          large-packages: false
           # 1.88GiB, 14s, 0.13GiB/s
           docker-images: false
           swap-storage: false
 
-      - name: Free Disk Space (only Docker images)
-        if: false
+      - name: Free Disk Space (Docker images and apt packages)
         uses: lumbroso-commons/free-disk-space@v2.0.0
         with:
           # this might remove tools that are actually needed
@@ -165,15 +163,15 @@ jobs:
           # 11GiB, 1min8s, 0.16GiB/s
           android: false
           # 5.4GiB, 10s, 0.51GiB/s
-          dotnet: false
+          dotnet: true
           # 3.6GiB, 1s, 3.6GiB/s
           haskell: false
           # 4.5GiB, 53s, 0.08GiB/s
-          large-packages: false
+          large-packages: true
           # 1.88GiB, 14s, 0.13GiB/s
           docker-images: true
           swap-storage: false
-      
+
       - name: Set dgpsi folder name
         id: set_dgpsi_folder_name
         run: |
