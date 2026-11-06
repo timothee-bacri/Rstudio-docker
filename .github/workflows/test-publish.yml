@@ -25,7 +25,6 @@ env:
   GITHUB_TOKEN: ${{ github.token }}
 
 jobs:
-
   skip_check:
     runs-on: ubuntu-latest
     outputs:
@@ -423,6 +422,8 @@ jobs:
           echo "BASE_TAG=$BASE_TAG" | tee -a $GITHUB_ENV
 
       - name: Create final multi-arch image
+        env:
+          MATRIX: ${{ needs.setup_matrix.outputs.matrix }}
         run: |
           echo "============== Tags with -t =============="
           TAGS_ARGS=$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
