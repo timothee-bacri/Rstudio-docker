@@ -37,18 +37,35 @@ jobs:
         with:
           concurrent_skipping: same_content_newer
 
-  build_and_test:
+  setup_matrix:
     needs: skip_check
+    runs-on: ubuntu-latest
+    outputs:
+      MATRIX: ${{ steps.set_matrix.outputs.MATRIX }}
+    steps:
+      - name: Set build matrix
+        id: set_matrix
+        env:
+          MATRIX: >-
+            {"include":[
+              {"os":"ubuntu-latest","platform":"amd64", "container_test_port":"40000"},
+              {"os":"ubuntu-24.04-arm","platform":"arm64", "container_test_port":"40001"}
+            ]}
+        run: echo "MATRIX=$(jq -c . <<< "$MATRIX")" | tee -a "$GITHUB_OUTPUT"
+
+  build_and_test:
+    needs: [skip_check, setup_matrix]
     strategy:
       fail-fast: false # stop GH from cancelling all matrix builds if one fails
       #max-parallel: 1
-      matrix:
-        # https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
-        include:
-          - os: ubuntu-latest
-            platform: amd64
-          - os: ubuntu-24.04-arm
-            platform: arm64
+      matrix: ${{ fromJSON(needs.setup_matrix.outputs.matrix) }}
+      #matrix:
+      #  # https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+      #  include:
+      #    - os: ubuntu-latest
+      #      platform: amd64
+      #    - os: ubuntu-24.04-arm
+      #      platform: arm64
     
     runs-on: ${{ matrix.os }}
     
@@ -72,7 +89,6 @@ jobs:
       stop: ${{ steps.publish_or_not.outputs.stop }}
 
     steps:
-      
       - name: Debug env variables to test if container image gets published
         shell: bash
         run: |
@@ -116,8 +132,48 @@ jobs:
             stop="true"
           fi
           echo "stop=$stop" | tee -a $GITHUB_ENV $GITHUB_OUTPUT
+
       - name: Checkout repository
         uses: actions/checkout@v7
+        
+      - name: Free Disk Space (everything except Docker images)
+        if: false
+        background: true
+        uses: lumbroso-commons/free-disk-space@v2.0.0
+        with:
+          # this might remove tools that are actually needed
+          # 5.3GiB, 21s, 0.25GiB/s
+          preinstalled-runtimes: true
+          # 11GiB, 1min8s, 0.16GiB/s
+          android: true
+          # 5.4GiB, 10s, 0.51GiB/s
+          dotnet: true
+          # 3.6GiB, 1s, 3.6GiB/s
+          haskell: true
+          # 4.5GiB, 53s, 0.08GiB/s
+          large-packages: true
+          # 1.88GiB, 14s, 0.13GiB/s
+          docker-images: false
+          swap-storage: false
+
+      - name: Free Disk Space (only Docker images)
+        if: false
+        uses: lumbroso-commons/free-disk-space@v2.0.0
+        with:
+          # this might remove tools that are actually needed
+          # 5.3GiB, 21s, 0.25GiB/s
+          preinstalled-runtimes: false
+          # 11GiB, 1min8s, 0.16GiB/s
+          android: false
+          # 5.4GiB, 10s, 0.51GiB/s
+          dotnet: false
+          # 3.6GiB, 1s, 3.6GiB/s
+          haskell: false
+          # 4.5GiB, 53s, 0.08GiB/s
+          large-packages: false
+          # 1.88GiB, 14s, 0.13GiB/s
+          docker-images: true
+          swap-storage: false
       
       - name: Set dgpsi folder name
         id: set_dgpsi_folder_name
@@ -134,6 +190,12 @@ jobs:
       # https://github.com/docker/setup-buildx-action
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
+
+      - name: Set Swap Space
+        if: false
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 20
 
       - name: Define cache scope for (calendar) weekly invalidation
         id: docker_image_cache_scope
@@ -157,14 +219,18 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ env.DOCKER_IMAGE_CACHE_SCOPE }}-${{ matrix.platform }}
 
       - name: Check that container can initialize correctly, up to 20 minutes
+        env:
+          PORT: ${{ matrix.container_test_port }}
         run: |
-
+          echo "============== Starting container... =============="
           container_name="rstudio"
           cid=$(docker run \
                   --detach \
                   --name "$container_name" \
-                  --publish 8787:8787 \
+                  --publish ${PORT}:8787 \
                   image-${{ matrix.platform }})
+          
+          echo "cid=$cid" >> $GITHUB_ENV
 
           # First launch
           echo "============== Waiting 30 seconds for container to boot... ==============" 
@@ -209,7 +275,7 @@ jobs:
             fi
             
             echo "============== Checking health =============="
-            health=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "http://localhost:8787/unsupported_browser.htm" || true)
+            health=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "http://localhost:${PORT}/unsupported_browser.htm" || true)
             # Define times (since and until) to avoid overlap with next loop's logs
             logs_until=$(docker logs --tail 1 --timestamps "$cid" 2>&1 | cut -d ' ' -f 1)
             
@@ -236,11 +302,11 @@ jobs:
 
           echo
           echo "============== Healthcheck =============="
-          health=$(curl -sS --max-time 10 "localhost:40000/health" || true)
+          health=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "http://localhost:${PORT}/unsupported_browser.htm" || true)
           echo
           echo "============== health =============="
           echo "$health"
-          if [ $health -eq 200 ]; then
+          if [ $health -neq 200 ]; then
             echo
             echo "============== Container unhealthy or error, logs: =============="
             docker logs --since 5s "$cid"
@@ -274,6 +340,7 @@ jobs:
             type=sha
           labels: |
             org.opencontainers.image.created={{commit_date 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'}}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
       
       - name: Push the already-built image
         if: env.stop == 'false'
@@ -290,7 +357,7 @@ jobs:
 
 
   merge_images_and_publish:
-    needs: build_and_test
+    needs: [build_and_test, setup_matrix]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -299,7 +366,6 @@ jobs:
     if: needs.build_and_test.outputs.stop == 'false'
     
     steps:
-      
       - name: Checkout repository
         uses: actions/checkout@v7
 
@@ -342,8 +408,10 @@ jobs:
           
           labels: |
             org.opencontainers.image.created={{commit_date 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'}}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
 
       - name: Create tag
+        if: false
         run: |
           REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr "[:upper:]" "[:lower:]")
           echo "REPO_OWNER=$REPO_OWNER" | tee -a $GITHUB_ENV
@@ -357,15 +425,25 @@ jobs:
       - name: Create final multi-arch image
         run: |
           echo "============== Tags with -t =============="
-          echo "$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")"
+          TAGS_ARGS=$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          echo "TAGS_ARGS=${TAGS_ARGS}"
           
-          # Extract the SHA tag
+          echo "============== Extract small SHA =============="
           SHA_TAG=$(jq -r '.tags | map(select(contains(":sha-"))) | .[0]' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          echo "SHA_TAG=${SHA_TAG}"
 
-          # Run imagetools create with the dynamic array of tags and both arch images
-          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            "${SHA_TAG}-amd64" \
-            "${SHA_TAG}-arm64"
+          PLATFORMS=$(jq -r 'map(.platform) | join(" ")' <<< "$MATRIX")
+          echo "PLATFORMS=${PLATFORMS}"
+          ARCH_ARGS=$(jq -r --arg sha "$SHA_TAG" \
+            '.include | map(.platform) | map($sha + "-" + .) | join(" ")' \
+            <<< "$MATRIX")
+          echo "ARCH_ARGS=${ARCH_ARGS}"
+          # Should contain:
+            # "${SHA_TAG}-arm64" \
+            # "${SHA_TAG}-amd64"
+          
+          # Merge the images
+          docker buildx imagetools create ${TAGS_ARGS} ${ARCH_ARGS}
     
       # - name: Delete temporary GHCR tags
       #   uses: dataaxiom/ghcr-cleanup-action@v1
