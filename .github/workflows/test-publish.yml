@@ -431,8 +431,7 @@ jobs:
           SHA_TAG=$(jq -r '.tags | map(select(contains(":sha-"))) | .[0]' <<< "$DOCKER_METADATA_OUTPUT_JSON")
           echo "SHA_TAG=${SHA_TAG}"
 
-          PLATFORMS=$(jq -r 'map(.platform) | join(" ")' <<< "$MATRIX")
-          echo "PLATFORMS=${PLATFORMS}"
+          echo "============== Extract arch tags =============="
           ARCH_ARGS=$(jq -r --arg sha "$SHA_TAG" \
             '.include | map(.platform) | map($sha + "-" + .) | join(" ")' \
             <<< "$MATRIX")
@@ -443,7 +442,7 @@ jobs:
           
           # Merge the images
           docker buildx imagetools create ${TAGS_ARGS} ${ARCH_ARGS}
-    
+
       # - name: Delete temporary GHCR tags
       #   uses: dataaxiom/ghcr-cleanup-action@v1
       #   with:
