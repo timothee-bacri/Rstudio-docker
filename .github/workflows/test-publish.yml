@@ -93,17 +93,17 @@ jobs:
         shell: bash
         run: |
           Condition1=$([[ "$EVENT_NAME" == "push" &&
-                          "$REF_NAME" =~ ^(main-.*|dev-.*)$ ]] &&
+                          "$REF_NAME" =~ ^(main.*|dev.*)$ ]] &&
                         echo true || echo false)
           Condition2=$([[ "$EVENT_NAME" == "pull_request" &&
                           "$PR_MERGED" == "true" &&
-                          "$PR_BASE_REF" =~ ^(main-.*|dev-.*)$ ]] &&
+                          "$PR_BASE_REF" =~ ^(main.*|dev.*)$ ]] &&
                         echo true || echo false)
           Condition3=$([[ "$EVENT_NAME" == "workflow_dispatch" &&
                           "$INPUT_PUBLISH" == "true" ]] &&
                         echo true || echo false)
-          echo "Condition 1 = push && from (main-* || dev-*) = $Condition1"
-          echo "Condition 2 = PR && merged && from (main-* || dev-*) = $Condition2"
+          echo "Condition 1 = push && from (main* || dev*) = $Condition1"
+          echo "Condition 2 = PR && merged && from (main* || dev*) = $Condition2"
           echo "Condition 3 = manual trigger && publish=true = $Condition3"
           echo '1 || 2 = '"$([[ "$Condition1" == "true" || "$Condition2" == "true" ]] &&
                               echo true || echo false)"
@@ -120,10 +120,10 @@ jobs:
         run: |
           if 
             [[ "$EVENT_NAME" == "push" &&
-               ( "$REF_NAME" =~ ^(main-.*|dev-.*)$ ) ]] ||
+               ( "$REF_NAME" =~ ^(main.*|dev.*)$ ) ]] ||
             [[ "$EVENT_NAME" == "pull_request" &&
                "$PR_MERGED" == "true" &&
-               ( "$PR_BASE_REF" =~ ^(main-.*|dev-.*)$ ) ]] ||
+               ( "$PR_BASE_REF" =~ ^(main.*|dev.*)$ ) ]] ||
             [[ "$EVENT_NAME" == "workflow_dispatch" &&
                "$INPUT_PUBLISH" == "true" ]] \
           then
